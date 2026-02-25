@@ -96,7 +96,7 @@ export default async function Home() {
             <div className="app-panel p-4">
               <h2 className="app-text-muted underline text-sm">Total Income (30 day rolling)</h2>
               <p className="mt-2 font-bold text-5xl">
-                $21,735
+                $-------
               </p>
             </div>
             <div className="app-panel p-4">
