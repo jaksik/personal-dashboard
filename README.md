@@ -10,24 +10,7 @@ The app uses Supabase Auth and enforces these routes:
 If an unauthenticated user visits `/`, they are redirected to `/sign-in`.
 If an authenticated user visits `/sign-in`, they are redirected to `/`.
 
-### Environment variables
 
-Create `.env.local` in the project root:
-
-```bash
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-
-# Grok (xAI) image generation
-GROK_API_KEY=your_grok_api_key
-# Optional overrides
-# XAI_API_KEY=your_grok_api_key
-# GROK_IMAGE_API_URL=https://api.x.ai/v1/images/generations
-# GROK_IMAGE_MODEL=grok-2-image-1212
-
-# Vercel Blob (for storing generated images)
-BLOB_READ_WRITE_TOKEN=your_vercel_blob_token
-```
 
 ## Getting Started
 
