@@ -1,5 +1,10 @@
 import { redirect } from "next/navigation";
+import { newsletterDropdownDetailsById } from "@/components/NewsletterDropdownDetails";
 import { createClient } from "@/utils/supabase/server";
+import NewsletterDropdown from "@/components/NewsletterDropdown";
+import ThemeToggle from "@/components/ThemeToggle";
+import { newsletterDropdowns } from "@/data/newsletter-dropdowns";
+import PlaceholderGraph from "@/components/PlaceholderGraph";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -20,20 +25,66 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
-      <main className="w-full max-w-3xl rounded-xl border border-foreground/15 bg-background p-8">
-        <h1 className="text-3xl font-semibold">Admin Dashboard</h1>
-        <p className="mt-3 text-foreground/70">
-          You are signed in as {user.email ?? "Unknown user"}.
-        </p>
-        <form action={signOut} className="mt-8">
-          <button
-            type="submit"
-            className="rounded-md bg-foreground px-4 py-2 text-background"
-          >
-            Sign out
-          </button>
-        </form>
+    <div className="app-shell min-h-screen">
+      <header className="flex items-center justify-end px-6 py-6">
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <form action={signOut}>
+            <button
+              type="submit"
+              className="app-btn-ghost px-4 py-2"
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
+      </header>
+
+      <main className="px-6 pb-8">
+        <div className="mx-auto grid w-full grid-cols-1 gap-4 lg:grid-cols-12">
+          <section className="space-y-4 lg:col-span-3">
+            <div className="app-panel p-4">
+              <h2 className="text-md font-semibold">System Run Logs</h2>
+              <p className="app-text-muted mt-2 text-sm">
+                Place compact widgets here.
+              </p>
+            </div>
+            <div className="app-panel p-4">
+              <h3 className="text-md font-semibold">Upcoming Human Tasks</h3>
+              <p className="app-text-muted mt-2 text-sm">
+                Good for quick stats or filters.
+              </p>
+            </div>
+          </section>
+
+          <section className="space-y-4 lg:col-span-6">
+            <PlaceholderGraph />
+            {newsletterDropdowns.map((item, index) => (
+              <NewsletterDropdown
+                key={item.id}
+                item={item}
+                defaultOpen={index === 0}
+              >
+                {newsletterDropdownDetailsById[item.id]}
+              </NewsletterDropdown>
+            ))}
+          </section>
+
+          <section className="space-y-4 lg:col-span-3">
+            <div className="app-panel p-4">
+              <h2 className="text-sm font-semibold">Right Column</h2>
+              <p className="app-text-muted mt-2 text-sm">
+                Use this side for alerts or utility widgets.
+              </p>
+            </div>
+            <div className="app-panel p-4">
+              <h3 className="text-sm font-semibold">Notes</h3>
+              <p className="app-text-muted mt-2 text-sm">
+                Reserve this area for lightweight components.
+              </p>
+            </div>
+          </section>
+        </div>
       </main>
     </div>
   );

@@ -34,10 +34,10 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
-      <main className="w-full max-w-md rounded-xl border border-foreground/15 bg-background p-8">
+    <div className="app-shell flex min-h-screen items-center justify-center px-6 py-12">
+      <main className="app-panel w-full max-w-md p-8">
         <h1 className="text-2xl font-semibold">Sign in</h1>
-        <p className="mt-2 text-sm text-foreground/70">
+        <p className="app-text-muted mt-2 text-sm">
           Use your email and password to access the admin dashboard.
         </p>
 
@@ -53,7 +53,7 @@ export default function SignInPage() {
               autoComplete="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="w-full rounded-md border border-foreground/20 bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-foreground/25"
+              className="app-input"
             />
           </div>
 
@@ -71,16 +71,16 @@ export default function SignInPage() {
               autoComplete="current-password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="w-full rounded-md border border-foreground/20 bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-foreground/25"
+              className="app-input"
             />
           </div>
 
-          {error ? <p className="text-sm text-foreground">{error}</p> : null}
+          {error ? <p className="app-text-danger text-sm">{error}</p> : null}
 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full rounded-md bg-foreground px-4 py-2 text-background disabled:opacity-60"
+            className="app-btn w-full px-4 py-2"
           >
             {isLoading ? "Signing in..." : "Sign in"}
           </button>
