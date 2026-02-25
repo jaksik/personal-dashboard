@@ -43,7 +43,7 @@ export async function GET() {
         .order("created_at", { ascending: false }),
       supabase
         .from("articles")
-        .select("id, title, title_snippet, category, created_at")
+        .select("id, title, title_snippet, category, url, description, created_at")
         .eq("newsletter_id", newsletter.id)
         .order("created_at", { ascending: false }),
     ]);
