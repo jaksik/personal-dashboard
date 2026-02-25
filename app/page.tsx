@@ -94,9 +94,9 @@ export default async function Home() {
 
           <section className="space-y-4 lg:col-span-3">
             <div className="app-panel p-4">
-              <h2 className="app-text-muted underline text-sm">Total Income</h2>
+              <h2 className="app-text-muted underline text-sm">Total Income (30 day rolling)</h2>
               <p className="mt-2 font-bold text-5xl">
-                $11,735
+                $21,735
               </p>
             </div>
             <div className="app-panel p-4">
