@@ -51,12 +51,7 @@ export default function ModalShell({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold">{title}</h3>
-            {description ? (
-              <p className="app-text-muted text-sm">{description}</p>
-            ) : null}
-          </div>
+          
 
           <button
             type="button"
