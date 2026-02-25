@@ -7,6 +7,10 @@ export const newsletterDropdowns: NewsletterDropdownData[] = [
     title: "The AI Entrepreneur Newsletter",
     timeCommitment: "30 min, 3/week",
     revenuePotential: "$5,000 / week",
+    badges: [
+      { label: "Task Requires Attention", tone: "attention" },
+      { label: "System Healthy", tone: "healthy" },
+    ],
     imageSrc: "/beehiiv-logo.png",
     imageAlt: "AI Entrepreneur logo",
     details:
@@ -18,6 +22,7 @@ export const newsletterDropdowns: NewsletterDropdownData[] = [
     title: "Connor Jaksik's YouTube Channel",
     timeCommitment: "45 min, 2/week",
     revenuePotential: "$2,800 / week",
+    badges: [{ label: "System Healthy", tone: "healthy" }],
     imageSrc: "/youtube-logo.webp",
     imageAlt: "Growth Ops logo",
     details:
@@ -25,10 +30,12 @@ export const newsletterDropdowns: NewsletterDropdownData[] = [
   },
   {
     id: "saas-intelligence",
-    category: "Email Newsletter",
-    title: "SaaS Intelligence Brief",
-    timeCommitment: "25 min, daily",
-    revenuePotential: "$3,200 / week",
+    category: "Market Investments",
+    title: "Recurring Asset Purchases",
+    timeCommitment: "1 hour, 1/month",
+    revenuePotential: "$3,000 / week",
+    badges: [{ label: "System Healthy", tone: "healthy" }],
+    imageSrc: "/robinhood-2.webp",
     details:
       "Placeholder content for your future hydrated components, such as trend charts and article blocks.",
   },

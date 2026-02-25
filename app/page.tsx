@@ -59,6 +59,28 @@ export default async function Home() {
 
           <section className="space-y-4 lg:col-span-6">
             <PlaceholderGraph />
+
+            <div className="overflow-hidden p-0 mb-10">
+              <div className="grid grid-cols-2 divide-x divide-y divide-foreground/20 md:grid-cols-4 md:divide-y-0">
+                <div className="px-4 py-6 text-center">
+                  <p className="app-text-muted text-md">Active Systems</p>
+                  <p className="mt-2 text-5xl font-semibold leading-none">3</p>
+                </div>
+                <div className="px-4 py-6 text-center">
+                  <p className="app-text-muted text-md">Weekly Checkins</p>
+                  <p className="mt-2 text-5xl font-semibold leading-none">7</p>
+                </div>
+                <div className="px-4 py-6 text-center">
+                  <p className="app-text-muted text-md">Time Commitment</p>
+                  <p className="mt-2 text-5xl font-semibold leading-none">12 h/w</p>
+                </div>
+                <div className="px-4 py-6 text-center">
+                  <p className="app-text-muted text-md">Revenue Potential</p>
+                  <p className="mt-2 text-5xl font-semibold leading-none">~$7k/w</p>
+                </div>
+              </div>
+            </div>
+
             {newsletterDropdowns.map((item, index) => (
               <NewsletterDropdown
                 key={item.id}
@@ -72,9 +94,9 @@ export default async function Home() {
 
           <section className="space-y-4 lg:col-span-3">
             <div className="app-panel p-4">
-              <h2 className="text-sm font-semibold">Right Column</h2>
-              <p className="app-text-muted mt-2 text-sm">
-                Use this side for alerts or utility widgets.
+              <h2 className="app-text-muted underline text-sm">Total Income</h2>
+              <p className="mt-2 font-bold text-5xl">
+                $11,735
               </p>
             </div>
             <div className="app-panel p-4">
