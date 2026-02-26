@@ -7,6 +7,8 @@ export type NewsletterDropdownData = {
   title: string;
   timeCommitment: string;
   revenuePotential: string;
+  thirtyDayIncome?: string;
+  secondaryDetails?: string;
   badges?: Array<{
     label: string;
     tone: "attention" | "healthy" | "neutral";
@@ -20,12 +22,14 @@ type NewsletterDropdownProps = {
   item: NewsletterDropdownData;
   defaultOpen?: boolean;
   children?: ReactNode;
+  secondaryChildren?: ReactNode;
 };
 
 export default function NewsletterDropdown({
   item,
   defaultOpen = false,
   children,
+  secondaryChildren,
 }: NewsletterDropdownProps) {
   function badgeClassName(tone: "attention" | "healthy" | "neutral") {
     if (tone === "attention") {
@@ -41,10 +45,22 @@ export default function NewsletterDropdown({
 
   return (
     <details
-      className="app-panel overflow-hidden border-2 mb-10"
+      className="app-panel relative mb-10 overflow-hidden"
+      style={{
+        borderWidth: "4px",
+        borderColor: "color-mix(in srgb, var(--app-text) 30%, transparent)",
+      }}
       open={defaultOpen}
     >
-      <summary className="flex cursor-pointer list-none items-center gap-4 p-5 [&::-webkit-details-marker]:hidden">
+      <summary className="relative flex cursor-pointer list-none items-center gap-4 p-5 pr-40 [&::-webkit-details-marker]:hidden">
+        <span
+          className="pointer-events-none absolute left-3 top-3 z-10 h-2.5 w-2.5 rounded-full bg-[#65e26d]"
+          aria-hidden="true"
+        />
+        <div className="absolute right-5 top-4 text-right">
+          <p className="app-text-muted underline text-xs">30 Day Income</p>
+          <p className="text-2xl text-[#15a71f] font-semibold">{item.thirtyDayIncome ?? "—"}</p>
+        </div>
         {item.imageSrc ? (
           <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-foreground/20">
             <Image
@@ -91,14 +107,35 @@ export default function NewsletterDropdown({
       </summary>
 
       <div className="border-t border-foreground/15 px-5 pb-5 pt-4">
-        {children ? (
-          children
-        ) : (
-          <p className="app-text-muted text-sm">
-            {item.details ??
-              "Placeholder dropdown content. Replace this with hydrated data components for this newsletter card."}
-          </p>
-        )}
+        <div>
+          {children ? (
+            children
+          ) : (
+            <p className="app-text-muted text-sm">
+              {item.details ??
+                "Placeholder dropdown content. Replace this with hydrated data components for this newsletter card."}
+            </p>
+          )}
+        </div>
+
+        <details className="mt-4">
+          <summary className="flex justify-end list-none [&::-webkit-details-marker]:hidden">
+            <span className="app-btn-ghost inline-flex cursor-pointer rounded-md px-3 py-1.5 text-xs font-medium">
+              More
+            </span>
+          </summary>
+
+          <div className="mt-3 border-t border-foreground/15 pt-3">
+            {secondaryChildren ? (
+              secondaryChildren
+            ) : (
+              <p className="app-text-muted text-sm">
+                {item.secondaryDetails ??
+                  "Additional dropdown content goes here. Replace with deeper metrics, notes, or controls."}
+              </p>
+            )}
+          </div>
+        </details>
       </div>
     </details>
   );

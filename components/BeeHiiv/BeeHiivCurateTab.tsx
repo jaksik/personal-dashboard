@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import BeeHiivCurateModal from "@/components/BeeHiiv/BeeHiivCurateModal";
 import BeeHiivLastSyncedBadge from "@/components/BeeHiiv/BeeHiivLastSyncedBadge";
+import {
+  dispatchNewsletterCreated,
+} from "@/components/BeeHiiv/BeeHiivNewsletterSelector";
 import BeeHiivNewsletterSelector from "@/components/BeeHiiv/BeeHiivNewsletterSelector";
 import { useSelectedNewsletterId } from "@/components/BeeHiiv/useSelectedNewsletterId";
 
@@ -77,6 +80,8 @@ export default function BeeHiivCurateTab() {
   const [articleCount, setArticleCount] = useState(0);
   const [jobCount, setJobCount] = useState(0);
   const [categoryCounters, setCategoryCounters] = useState<CategoryCounter[]>([]);
+  const [isCreatingNewsletter, setIsCreatingNewsletter] = useState(false);
+  const [createNewsletterError, setCreateNewsletterError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadCurateSummary() {
@@ -159,15 +164,53 @@ export default function BeeHiivCurateTab() {
   const referenceDate = newsletter?.created_at ? formatDate(newsletter.created_at) : "Pending";
   const referenceName = newsletter?.title ?? "No newsletter";
 
+  async function createNewsletter() {
+    setIsCreatingNewsletter(true);
+    setCreateNewsletterError(null);
+
+    const supabase = createClient();
+    const { data: createdNewsletter, error } = await supabase
+      .from("newsletters")
+      .insert({})
+      .select("id, title, created_at")
+      .single();
+
+    if (error) {
+      setCreateNewsletterError(error.message);
+      setIsCreatingNewsletter(false);
+      return;
+    }
+
+    if (createdNewsletter) {
+      dispatchNewsletterCreated(createdNewsletter);
+    }
+
+    setSyncedAt(new Date());
+    setIsCreatingNewsletter(false);
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <BeeHiivNewsletterSelector />
           <BeeHiivCurateModal />
+          <button
+            type="button"
+            className="app-btn-ghost h-10 w-10 text-lg font-semibold leading-none"
+            onClick={createNewsletter}
+            disabled={isCreatingNewsletter}
+            aria-label="Create newsletter"
+            title="Create newsletter"
+          >
+            +
+          </button>
         </div>
         <BeeHiivLastSyncedBadge syncedAt={syncedAt} />
       </div>
+      {createNewsletterError ? (
+        <p className="app-text-danger text-sm">{createNewsletterError}</p>
+      ) : null}
       <div className="flex items-center gap-3">
         {articleCount > 0 ? <SuccessIcon /> : <PendingIcon />}
         <div className="space-y-2">

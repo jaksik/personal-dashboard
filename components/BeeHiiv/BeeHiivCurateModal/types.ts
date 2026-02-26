@@ -28,5 +28,5 @@ export type JobPostingRow = Pick<
   | "newsletter_id"
 >;
 
-export type SortKey = "title" | "category" | "publisher" | "created_at";
+export type SortKey = "title" | "category" | "publisher" | "created_at" | "source";
 export type CurateTab = "articles" | "jobs";

@@ -26,10 +26,6 @@ export type NewsletterRow = TableRow<"newsletters">;
 export type NewsletterInsert = TableInsert<"newsletters">;
 export type NewsletterUpdate = TableUpdate<"newsletters">;
 
-export type ScriptLogRow = TableRow<"script_logs">;
-export type ScriptLogInsert = TableInsert<"script_logs">;
-export type ScriptLogUpdate = TableUpdate<"script_logs">;
-
 export type StockPriceRow = TableRow<"stock_prices">;
 export type StockPriceInsert = TableInsert<"stock_prices">;
 export type StockPriceUpdate = TableUpdate<"stock_prices">;
