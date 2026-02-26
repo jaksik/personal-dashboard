@@ -21,6 +21,7 @@ type NewsletterImage = {
 
 type BeeHiivImageGeneratorProps = {
   isVisible: boolean;
+  selectedNewsletterId: number | null;
   onCoverImageChange?: (coverImageUrl: string | null) => void;
 };
 
@@ -56,6 +57,7 @@ function truncateText(value: string | null, maxLength: number) {
 
 export default function BeeHiivImageGenerator({
   isVisible,
+  selectedNewsletterId,
   onCoverImageChange,
 }: BeeHiivImageGeneratorProps) {
   const [isLoadingContext, setIsLoadingContext] = useState(false);
@@ -80,7 +82,13 @@ export default function BeeHiivImageGenerator({
       setError(null);
       setActionMessage(null);
 
-      const response = await fetch("/api/beehiiv/design/context", {
+      const searchParams = new URLSearchParams();
+
+      if (selectedNewsletterId != null) {
+        searchParams.set("newsletterId", String(selectedNewsletterId));
+      }
+
+      const response = await fetch(`/api/beehiiv/design/context?${searchParams.toString()}`, {
         method: "GET",
       });
 
@@ -103,7 +111,7 @@ export default function BeeHiivImageGenerator({
     }
 
     loadContext();
-  }, [isVisible, onCoverImageChange]);
+  }, [isVisible, selectedNewsletterId, onCoverImageChange]);
 
   async function handleGenerateImage(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

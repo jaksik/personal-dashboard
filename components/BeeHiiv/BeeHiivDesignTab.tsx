@@ -1,19 +1,11 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
 import BeeHiivLastSyncedBadge from "@/components/BeeHiiv/BeeHiivLastSyncedBadge";
 import BeeHiivDesignModal from "@/components/BeeHiiv/BeeHiivDesignModal";
-import { createClient } from "@/utils/supabase/server";
-
-function formatDate(value: string) {
-  const date = new Date(value);
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  const hours24 = date.getHours();
-  const hours12 = hours24 % 12 || 12;
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const meridiem = hours24 >= 12 ? "pm" : "am";
-
-  return `${month}/${day}, ${String(hours12).padStart(2, "0")}:${minutes} ${meridiem}`;
-}
+import BeeHiivNewsletterSelector from "@/components/BeeHiiv/BeeHiivNewsletterSelector";
+import { useSelectedNewsletterId } from "@/components/BeeHiiv/useSelectedNewsletterId";
+import { createClient } from "@/utils/supabase/client";
 
 function SuccessIcon() {
   return (
@@ -51,70 +43,123 @@ function hasText(value: string | null) {
   return Boolean(value && value.trim().length > 0);
 }
 
-export default async function BeeHiivDesignTab() {
-  const syncedAt = new Date();
-  const supabase = await createClient();
-  const cutoff = new Date(new Date().getTime() - 12 * 60 * 60 * 1000).toISOString();
+type DesignNewsletter = {
+  id: number;
+  title: string | null;
+  sub_title: string | null;
+  cover_image: string | null;
+  cover_article: number | null;
+  created_at: string;
+};
 
-  const { data: newsletters } = await supabase
-    .from("newsletters")
-    .select("id, title, sub_title, cover_image, cover_article, created_at")
-    .gte("created_at", cutoff)
-    .order("created_at", { ascending: false })
-    .limit(1);
+export default function BeeHiivDesignTab() {
+  const { selectedNewsletterId } = useSelectedNewsletterId();
+  const [syncedAt, setSyncedAt] = useState(new Date());
+  const [newsletter, setNewsletter] = useState<DesignNewsletter | null>(null);
+  const [featureArticleSnippet, setFeatureArticleSnippet] = useState<string | null>(null);
 
-  const latestNewsletter = newsletters?.[0] ?? null;
+  useEffect(() => {
+    async function loadDesignSummary() {
+      const supabase = createClient();
+      const cutoff = new Date(new Date().getTime() - 12 * 60 * 60 * 1000).toISOString();
 
-  const referenceDate = latestNewsletter?.created_at
-    ? formatDate(latestNewsletter.created_at)
-    : "Pending";
-  const referenceName = latestNewsletter?.title ?? "No newsletter";
+      const newsletterQuery = supabase
+        .from("newsletters")
+        .select("id, title, sub_title, cover_image, cover_article, created_at")
+        .order("created_at", { ascending: false })
+        .limit(1);
 
-  const checks = [
-    {
-      label: "Has Title",
-      success: hasText(latestNewsletter?.title ?? null),
-      successMessage: "Title is set",
-      pendingMessage: "Title is missing",
-    },
-    {
-      label: "Has Sub Title",
-      success: hasText(latestNewsletter?.sub_title ?? null),
-      successMessage: "Sub title is set",
-      pendingMessage: "Sub title is missing",
-    },
-    {
-      label: "Has Cover Image",
-      success: hasText(latestNewsletter?.cover_image ?? null),
-      successMessage: "Cover image is set",
-      pendingMessage: "Cover image is missing",
-    },
-    {
-      label: "Has Cover Article",
-      success: latestNewsletter?.cover_article != null,
-      successMessage: "Cover article is set",
-      pendingMessage: "Cover article is missing",
-    },
-  ];
+      if (selectedNewsletterId != null) {
+        newsletterQuery.eq("id", selectedNewsletterId);
+      } else {
+        newsletterQuery.gte("created_at", cutoff);
+      }
+
+      const { data: newsletters } = await newsletterQuery;
+      const selectedNewsletter = newsletters?.[0] ?? null;
+      setNewsletter(selectedNewsletter);
+
+      if (selectedNewsletter?.cover_article != null) {
+        const { data: featureArticle } = await supabase
+          .from("articles")
+          .select("title_snippet")
+          .eq("id", selectedNewsletter.cover_article)
+          .limit(1)
+          .maybeSingle();
+
+        setFeatureArticleSnippet(featureArticle?.title_snippet ?? null);
+      } else {
+        setFeatureArticleSnippet(null);
+      }
+
+      setSyncedAt(new Date());
+    }
+
+    loadDesignSummary();
+  }, [selectedNewsletterId]);
+
+  const checks = useMemo(
+    () => [
+      {
+        label: "Title",
+        success: hasText(newsletter?.title ?? null),
+        successMessage: newsletter?.title?.trim() ?? "",
+        pendingMessage: "Title is missing",
+        includeReferenceMetadata: false,
+      },
+      {
+        label: "Sub Title",
+        success: hasText(newsletter?.sub_title ?? null),
+        successMessage: newsletter?.sub_title?.trim() ?? "",
+        pendingMessage: "Sub title is missing",
+        includeReferenceMetadata: false,
+      },
+      {
+        label: "Feature Article",
+        success: hasText(featureArticleSnippet),
+        successMessage: featureArticleSnippet ?? "",
+        pendingMessage: "Feature article is missing",
+        includeReferenceMetadata: false,
+      },
+      {
+        label: "Cover Image",
+        success: hasText(newsletter?.cover_image ?? null),
+        successMessage: "Cover image is set",
+        pendingMessage: "Cover image is missing",
+        includeReferenceMetadata: true,
+        hideDetails: true,
+      },
+    ],
+    [newsletter, featureArticleSnippet]
+  );
 
   return (
     <div className="space-y-4">
-      <BeeHiivLastSyncedBadge syncedAt={syncedAt} />
-      <BeeHiivDesignModal />
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <BeeHiivNewsletterSelector />
+          <BeeHiivDesignModal />
+        </div>
+        <BeeHiivLastSyncedBadge syncedAt={syncedAt} />
+      </div>
 
       {checks.map((check) => (
         <div key={check.label} className="flex items-center gap-3">
           {check.success ? <SuccessIcon /> : <PendingIcon />}
           <p className="font-medium sm:text-base">
             <span className="font-semibold">{check.label}</span>{" "}
-            <span className="text-sm">
-              - {referenceDate} - {referenceName} -{" "}
-              {latestNewsletter
-                ? check.success
-                  ? check.successMessage
-                  : check.pendingMessage
-                : "No newsletter created in last 12 hours"}
-            </span>
+            {check.hideDetails ? null : (
+              <span className="text-sm">
+                {check.includeReferenceMetadata
+                  ? "- "
+                  : "- "}
+                {newsletter
+                  ? check.success
+                    ? check.successMessage
+                    : check.pendingMessage
+                  : "No newsletter created in last 12 hours"}
+              </span>
+            )}
           </p>
         </div>
       ))}

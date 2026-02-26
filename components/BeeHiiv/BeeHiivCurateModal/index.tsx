@@ -6,9 +6,11 @@ import { createClient } from "@/utils/supabase/client";
 import ArticlesTable from "./ArticlesTable";
 import CurateTopTabs from "./CurateTopTabs";
 import JobsTable from "./JobsTable";
+import { useSelectedNewsletterId } from "@/components/BeeHiiv/useSelectedNewsletterId";
 import type { ArticleRow, CurateTab, JobPostingRow, SortKey } from "./types";
 
 export default function BeeHiivCurateModal() {
+  const { selectedNewsletterId } = useSelectedNewsletterId();
   const [activeTab, setActiveTab] = useState<CurateTab>("articles");
   const [isOpen, setIsOpen] = useState(false);
   const [articles, setArticles] = useState<ArticleRow[]>([]);
@@ -45,7 +47,7 @@ export default function BeeHiivCurateModal() {
 
       const [
         { data: articleData, error: articleError },
-        { data: newsletters, error: newsletterError },
+        { data: selectedNewsletter, error: newsletterError },
         { data: jobsData, error: jobsError },
       ] = await Promise.all([
         supabase
@@ -58,7 +60,7 @@ export default function BeeHiivCurateModal() {
         supabase
           .from("newsletters")
           .select("id, title, created_at")
-          .gte("created_at", cutoff)
+          .eq("id", selectedNewsletterId ?? -1)
           .order("created_at", { ascending: false })
           .limit(1),
         supabase
@@ -88,10 +90,28 @@ export default function BeeHiivCurateModal() {
         return;
       }
 
-      const latestNewsletter = newsletters?.[0] ?? null;
+      let resolvedNewsletter = selectedNewsletter?.[0] ?? null;
+
+      if (!resolvedNewsletter) {
+        const { data: fallbackNewsletters, error: fallbackNewsletterError } = await supabase
+          .from("newsletters")
+          .select("id, title, created_at")
+          .gte("created_at", cutoff)
+          .order("created_at", { ascending: false })
+          .limit(1);
+
+        if (fallbackNewsletterError) {
+          setError(fallbackNewsletterError.message);
+          setIsLoading(false);
+          return;
+        }
+
+        resolvedNewsletter = fallbackNewsletters?.[0] ?? null;
+      }
+
       setTargetNewsletter(
-        latestNewsletter
-          ? { id: latestNewsletter.id, title: latestNewsletter.title }
+        resolvedNewsletter
+          ? { id: resolvedNewsletter.id, title: resolvedNewsletter.title }
           : null
       );
 
@@ -101,7 +121,7 @@ export default function BeeHiivCurateModal() {
     }
 
     loadArticles();
-  }, [isOpen]);
+  }, [isOpen, selectedNewsletterId]);
 
   const categories = useMemo(() => {
     const unique = new Set<string>();
@@ -256,13 +276,13 @@ export default function BeeHiivCurateModal() {
 
   return (
     <>
-      <div className="flex justify-end">
+      <div className="flex justify-start">
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="app-btn px-3 py-2 text-xs font-medium"
+          className="app-btn-ghost inline-flex h-9 items-center rounded-md px-4 text-md font-semibold tracking-wide shadow-sm transition hover:-translate-y-px hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
         >
-          Open Curate Modal
+          Curate
         </button>
       </div>
 
