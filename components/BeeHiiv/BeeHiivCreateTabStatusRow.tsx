@@ -88,14 +88,12 @@ export default function BeeHiivCreateTabStatusRow({
       {isOpen ? (
         <div className="mt-3 overflow-hidden rounded-xl border border-foreground/15">
           <table className="w-full table-fixed text-left">
-            <thead className="">
-              <tr className="text-sm font-medium">
-                <th className="w-10 px-5 py-3"></th>
-                <th className="w-36 px-5 py-3"></th>
-                <th className="w-38 px-5 py-3"></th>
-                <th className="px-5 py-3"></th>
-              </tr>
-            </thead>
+            <colgroup>
+              <col className="w-10" />
+              <col className="w-36" />
+              <col className="w-38" />
+              <col />
+            </colgroup>
             <tbody>
               {logs.length > 0 ? (
                 logs.map((log) => {
@@ -103,20 +101,20 @@ export default function BeeHiivCreateTabStatusRow({
 
                   return (
                     <tr key={log.id} className="border-b border-foreground/15 last:border-b-0">
-                      <td className="px-5 py-3 align-top">
+                      <td className="pl-5 py-3 align-middle">
                         {rowSuccess ? (
                           <SuccessIcon sizeClassName="h-4 w-4" />
                         ) : (
                           <PendingIcon sizeClassName="h-4 w-4" />
                         )}
                       </td>
-                      <td className="px-5 py-3 align-top text-sm font-medium">
+                      <td className="px-1 py-3 align-middle text-sm font-medium">
                         {formatTableDate(log.created_at)}
                       </td>
-                      <td className="px-5 py-3 align-top text-sm font-medium">
+                      <td className="px-1 py-3 align-middle text-sm font-medium">
                         {log.name ?? "-"}
                       </td>
-                      <td className="px-5 py-3 align-top text-sm font-medium">
+                      <td className="px-4 py-3 align-middle text-sm font-medium">
                         {log.message ?? "-"}
                       </td>
                     </tr>

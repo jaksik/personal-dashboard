@@ -9,6 +9,16 @@ type NewsletterOption = {
   created_at: string;
 };
 
+const NEWSLETTER_CREATED_EVENT = "beehiiv:newsletter-created";
+
+export function dispatchNewsletterCreated(newsletter: NewsletterOption) {
+  window.dispatchEvent(
+    new CustomEvent<NewsletterOption>(NEWSLETTER_CREATED_EVENT, {
+      detail: newsletter,
+    })
+  );
+}
+
 let cachedNewsletters: NewsletterOption[] | null = null;
 
 function formatOptionDate(value: string) {
@@ -56,6 +66,32 @@ export default function BeeHiivNewsletterSelector() {
 
     loadNewsletters();
   }, []);
+
+  useEffect(() => {
+    function handleNewsletterCreated(event: Event) {
+      const customEvent = event as CustomEvent<NewsletterOption>;
+      const created = customEvent.detail;
+
+      if (!created) {
+        return;
+      }
+
+      setNewsletters((current) => {
+        const deduped = current.filter((newsletter) => newsletter.id !== created.id);
+        const next = [created, ...deduped];
+        cachedNewsletters = next;
+        return next;
+      });
+
+      setSelectedNewsletterId(created.id);
+    }
+
+    window.addEventListener(NEWSLETTER_CREATED_EVENT, handleNewsletterCreated);
+
+    return () => {
+      window.removeEventListener(NEWSLETTER_CREATED_EVENT, handleNewsletterCreated);
+    };
+  }, [setSelectedNewsletterId]);
 
   useEffect(() => {
     if (newsletters.length === 0) {

@@ -115,7 +115,11 @@ export default function ArticlesTable({
                     Created
                   </button>
                 </th>
-                <th className="px-4 py-3 font-semibold">Source</th>
+                <th className="px-4 py-3 font-semibold">
+                  <button type="button" onClick={() => applySort("source")}>
+                    Source
+                  </button>
+                </th>
                 <th className="px-4 py-3 font-semibold">
                   <button type="button" onClick={() => applySort("publisher")}>
                     Publisher
@@ -191,12 +195,12 @@ export default function ArticlesTable({
                     </td>
                     <td className="px-4 py-3">
                       <div className="space-y-1">
-                        <p className="text-lg font-medium app-text-muted">
+                        <p className="text-lg font-semibold">
                           {article.title_snippet ?? "—"}
                         </p>
-                        <p className="font-medium">{article.title ?? "Untitled"}</p>
+                        <p className="text-md font-medium">{truncateText(article.title, 80) ?? "Untitled"}</p>
                         <p className="text-sm app-text-muted">
-                          {truncateText(article.description, 300)}
+                          {truncateText(article.description, 150)}
                         </p>
                       </div>
                     </td>

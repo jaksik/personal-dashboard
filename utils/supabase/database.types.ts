@@ -232,30 +232,6 @@ export type Database = {
           },
         ]
       }
-      script_logs: {
-        Row: {
-          created_at: string
-          id: number
-          message: string | null
-          script_name: string | null
-          status: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          message?: string | null
-          script_name?: string | null
-          status?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          message?: string | null
-          script_name?: string | null
-          status?: string | null
-        }
-        Relationships: []
-      }
       stock_prices: {
         Row: {
           close_date: string | null
@@ -334,6 +310,49 @@ export type Database = {
           name?: string | null
           subcategory?: string | null
           url?: string | null
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+  system: {
+    Tables: {
+      tasks: {
+        Row: {
+          complete: boolean | null
+          component_name: string
+          created_at: string
+          id: number
+          scheduled_date: string
+          task_name: string
+        }
+        Insert: {
+          complete?: boolean | null
+          component_name: string
+          created_at?: string
+          id?: number
+          scheduled_date: string
+          task_name: string
+        }
+        Update: {
+          complete?: boolean | null
+          component_name?: string
+          created_at?: string
+          id?: number
+          scheduled_date?: string
+          task_name?: string
         }
         Relationships: []
       }
@@ -472,6 +491,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
+    Enums: {},
+  },
+  system: {
     Enums: {},
   },
 } as const

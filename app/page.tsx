@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { newsletterDropdownDetailsById } from "@/components/NewsletterDropdownDetails";
+import { newsletterDropdownContentById } from "@/components/NewsletterDropdownDetails";
 import { createClient } from "@/utils/supabase/server";
 import NewsletterDropdown from "@/components/NewsletterDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -7,6 +7,9 @@ import { newsletterDropdowns } from "@/data/newsletter-dropdowns";
 import PlaceholderGraph from "@/components/PlaceholderGraph";
 import DottedWorldMap from "@/components/DottedWorldMap";
 import ContributionHeatMapPlaceholder from "@/components/ContributionHeatMapPlaceholder";
+import WorldClockRow from "@/components/WorldClockRow";
+import SystemTasksTable from "@/components/SystemTasksTable";
+
 
 export default async function Home() {
   const supabase = await createClient();
@@ -17,6 +20,14 @@ export default async function Home() {
   if (!user) {
     redirect("/sign-in");
   }
+
+  const { data: tasksResult, error: tasksError } = await supabase
+    .schema("system")
+    .from("tasks")
+    .select("*")
+    .limit(8);
+  const tasks = Array.isArray(tasksResult) ? tasksResult : [];
+  const tasksErrorMessage = tasksError ? `system.tasks: ${tasksError.message}` : null;
 
   async function signOut() {
     "use server";
@@ -45,27 +56,23 @@ export default async function Home() {
       <main className="px-6 pb-8">
         <div className="mx-auto grid w-full grid-cols-1 gap-4 lg:grid-cols-12">
           <section className="space-y-4 lg:col-span-3">
-            <div className="app-panel p-4">
-              <h2 className="text-md font-semibold">System Run Logs</h2>
-              <p className="app-text-muted mt-2 text-sm">
-                Place compact widgets here.
-              </p>
-            </div>
+            <SystemTasksTable
+              tasks={tasks}
+              errorMessage={tasksErrorMessage}
+            />
             <div className="app-panel p-4">
               <h3 className="text-md font-semibold">Scheduled Check-Ins</h3>
               <p className="app-text-muted mt-2 text-sm">
                 Good for quick stats or filters.
               </p>
             </div>
-            <DottedWorldMap />
-            <ContributionHeatMapPlaceholder />
 
           </section>
 
           <section className="space-y-4 lg:col-span-6">
-            <PlaceholderGraph />
-
-            <div className="overflow-hidden p-0 mb-10">
+            <WorldClockRow />
+            <DottedWorldMap />
+            <div className="overflow-hidden p-0 mb-3">
               <div className="grid grid-cols-2 divide-x divide-y divide-foreground/20 md:grid-cols-4 md:divide-y-0">
                 <div className="px-4 py-6 text-center">
                   <p className="app-text-muted text-md">Active Systems</p>
@@ -85,14 +92,15 @@ export default async function Home() {
                 </div>
               </div>
             </div>
+            <ContributionHeatMapPlaceholder />
 
-            {newsletterDropdowns.map((item, index) => (
+            {newsletterDropdowns.map((item) => (
               <NewsletterDropdown
                 key={item.id}
                 item={item}
-                defaultOpen={index === 0}
+                secondaryChildren={newsletterDropdownContentById[item.id]?.secondary}
               >
-                {newsletterDropdownDetailsById[item.id]}
+                {newsletterDropdownContentById[item.id]?.primary}
               </NewsletterDropdown>
             ))}
           </section>
@@ -104,6 +112,8 @@ export default async function Home() {
                 $-------
               </p>
             </div>
+            <PlaceholderGraph />
+
             <div className="app-panel p-4">
               <h3 className="text-sm font-semibold">Notes</h3>
               <p className="app-text-muted mt-2 text-sm">

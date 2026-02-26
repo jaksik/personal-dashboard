@@ -1,5 +1,5 @@
-const contributionRows = 7;
-const contributionCols = 26;
+const contributionRows = 3;
+const contributionCols = 66;
 
 const intensityClasses = [
   "bg-foreground/10",
@@ -16,10 +16,9 @@ function getIntensity(row: number, col: number) {
 
 export default function ContributionHeatMapPlaceholder() {
   return (
-    <div className="app-panel p-4">
-      <p className="app-text-muted text-sm font-medium">Contribution Activity</p>
 
-      <div className="mt-3 overflow-x-auto">
+      <div className="mb-8 overflow-x-auto">
+        <p className="app-text-muted text-sm">Task Completions</p>
         <div
           className="grid w-max gap-1"
           style={{ gridTemplateColumns: `repeat(${contributionCols}, minmax(0, 1fr))` }}
@@ -38,6 +37,5 @@ export default function ContributionHeatMapPlaceholder() {
           })}
         </div>
       </div>
-    </div>
   );
 }

@@ -133,7 +133,7 @@ export default function DetailTabs({
         })}
       </div>
 
-      <div className="app-kpi p-4">
+      <div className="p-4">
         <h4 className="text-sm font-semibold">{activeTab.title}</h4>
         {safeTabs.map((tab) => {
           if (!mountedTabIds.has(tab.id)) {
