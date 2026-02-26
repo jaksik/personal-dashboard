@@ -11,11 +11,13 @@ type NewsletterMeta = {
 
 type BeeHiivNewsletterMetaFormProps = {
   isVisible: boolean;
+  selectedNewsletterId: number | null;
   onMetaChange?: (next: { title: string | null; sub_title: string | null }) => void;
 };
 
 export default function BeeHiivNewsletterMetaForm({
   isVisible,
+  selectedNewsletterId,
   onMetaChange,
 }: BeeHiivNewsletterMetaFormProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -36,9 +38,18 @@ export default function BeeHiivNewsletterMetaForm({
       setError(null);
       setMessage(null);
 
-      const response = await fetch("/api/beehiiv/design/newsletter-meta", {
+      const searchParams = new URLSearchParams();
+
+      if (selectedNewsletterId != null) {
+        searchParams.set("newsletterId", String(selectedNewsletterId));
+      }
+
+      const response = await fetch(
+        `/api/beehiiv/design/newsletter-meta?${searchParams.toString()}`,
+        {
         method: "GET",
-      });
+        }
+      );
 
       const payload = (await response.json()) as {
         error?: string;
@@ -63,7 +74,7 @@ export default function BeeHiivNewsletterMetaForm({
     }
 
     loadNewsletterMeta();
-  }, [isVisible, onMetaChange]);
+  }, [isVisible, selectedNewsletterId, onMetaChange]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

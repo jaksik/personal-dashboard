@@ -5,6 +5,8 @@ import NewsletterDropdown from "@/components/NewsletterDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
 import { newsletterDropdowns } from "@/data/newsletter-dropdowns";
 import PlaceholderGraph from "@/components/PlaceholderGraph";
+import DottedWorldMap from "@/components/DottedWorldMap";
+import ContributionHeatMapPlaceholder from "@/components/ContributionHeatMapPlaceholder";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -50,11 +52,14 @@ export default async function Home() {
               </p>
             </div>
             <div className="app-panel p-4">
-              <h3 className="text-md font-semibold">Upcoming Human Tasks</h3>
+              <h3 className="text-md font-semibold">Scheduled Check-Ins</h3>
               <p className="app-text-muted mt-2 text-sm">
                 Good for quick stats or filters.
               </p>
             </div>
+            <DottedWorldMap />
+            <ContributionHeatMapPlaceholder />
+
           </section>
 
           <section className="space-y-4 lg:col-span-6">

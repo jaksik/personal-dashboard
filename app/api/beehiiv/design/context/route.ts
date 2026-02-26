@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const supabase = await createClient();
     const {
@@ -13,14 +13,24 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const newsletterIdParam = searchParams.get("newsletterId");
+    const requestedNewsletterId = newsletterIdParam ? Number(newsletterIdParam) : null;
     const cutoff = new Date(new Date().getTime() - 12 * 60 * 60 * 1000).toISOString();
 
-    const { data: newsletters, error: newsletterError } = await supabase
+    const newsletterQuery = supabase
       .from("newsletters")
       .select("id, title, sub_title, cover_image, created_at")
-      .gte("created_at", cutoff)
       .order("created_at", { ascending: false })
       .limit(1);
+
+    if (requestedNewsletterId && Number.isFinite(requestedNewsletterId)) {
+      newsletterQuery.eq("id", requestedNewsletterId);
+    } else {
+      newsletterQuery.gte("created_at", cutoff);
+    }
+
+    const { data: newsletters, error: newsletterError } = await newsletterQuery;
 
     if (newsletterError) {
       return NextResponse.json({ error: newsletterError.message }, { status: 500 });

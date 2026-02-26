@@ -13,7 +13,7 @@ export default function PlaceholderGraph() {
 
       <svg
         viewBox="0 0 640 280"
-        className="h-94 w-full rounded-xl p-3"
+        className="h-54 w-full rounded-xl p-3"
         role="img"
         aria-label="Placeholder chart"
       >

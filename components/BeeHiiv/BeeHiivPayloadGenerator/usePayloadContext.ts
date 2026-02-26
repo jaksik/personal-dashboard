@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import type { PayloadArticle, PayloadContextResponse, PayloadNewsletter } from "./types";
+import { useSelectedNewsletterId } from "@/components/BeeHiiv/useSelectedNewsletterId";
 
 export function usePayloadContext() {
+  const { selectedNewsletterId } = useSelectedNewsletterId();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newsletter, setNewsletter] = useState<PayloadNewsletter | null>(null);
@@ -14,7 +16,13 @@ export function usePayloadContext() {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch("/api/beehiiv/design/context", {
+      const searchParams = new URLSearchParams();
+
+      if (selectedNewsletterId != null) {
+        searchParams.set("newsletterId", String(selectedNewsletterId));
+      }
+
+      const response = await fetch(`/api/beehiiv/design/context?${searchParams.toString()}`, {
         method: "GET",
       });
 
@@ -36,7 +44,7 @@ export function usePayloadContext() {
     }
 
     loadPayloadContext();
-  }, []);
+  }, [selectedNewsletterId]);
 
   return {
     isLoading,

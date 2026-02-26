@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import ModalShell from "@/components/ui/ModalShell";
 import BeeHiivImageGenerator from "./BeeHiivImageGenerator";
 import BeeHiivNewsletterMetaForm from "./BeeHiivNewsletterMetaForm";
+import { useSelectedNewsletterId } from "@/components/BeeHiiv/useSelectedNewsletterId";
 
 type DesignContextNewsletter = {
   id: number;
@@ -22,6 +23,7 @@ type DesignContextArticle = {
 };
 
 export default function BeeHiivDesignModal() {
+  const { selectedNewsletterId } = useSelectedNewsletterId();
   const [isOpen, setIsOpen] = useState(false);
   const [previewCoverImage, setPreviewCoverImage] = useState<string | null>(null);
   const [previewTitle, setPreviewTitle] = useState<string | null>(null);
@@ -51,7 +53,13 @@ export default function BeeHiivDesignModal() {
     }
 
     async function loadPreviewContext() {
-      const response = await fetch("/api/beehiiv/design/context", {
+      const searchParams = new URLSearchParams();
+
+      if (selectedNewsletterId != null) {
+        searchParams.set("newsletterId", String(selectedNewsletterId));
+      }
+
+      const response = await fetch(`/api/beehiiv/design/context?${searchParams.toString()}`, {
         method: "GET",
       });
 
@@ -68,17 +76,17 @@ export default function BeeHiivDesignModal() {
     }
 
     loadPreviewContext();
-  }, [isOpen]);
+  }, [isOpen, selectedNewsletterId]);
 
   return (
     <>
-      <div className="flex justify-end">
+      <div className="flex justify-start">
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="app-btn px-3 py-2 text-xs font-medium"
+          className="app-btn-ghost inline-flex h-9 items-center rounded-md px-4 text-md font-semibold tracking-wide shadow-sm transition hover:-translate-y-px hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
         >
-          Open Design Modal
+          Design
         </button>
       </div>
 
@@ -111,6 +119,7 @@ export default function BeeHiivDesignModal() {
                 <div className="mt-2">
                   <BeeHiivNewsletterMetaForm
                     isVisible={isOpen}
+                    selectedNewsletterId={selectedNewsletterId}
                     onMetaChange={(next) => {
                       setPreviewTitle(next.title);
                       setPreviewSubTitle(next.sub_title);
@@ -134,6 +143,7 @@ export default function BeeHiivDesignModal() {
                 <div className="mt-2">
                   <BeeHiivImageGenerator
                     isVisible={isOpen}
+                    selectedNewsletterId={selectedNewsletterId}
                     onCoverImageChange={setPreviewCoverImage}
                   />
                 </div>

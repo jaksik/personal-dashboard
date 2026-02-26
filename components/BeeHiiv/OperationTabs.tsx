@@ -65,9 +65,45 @@ export default function DetailTabs({
 }: DetailTabsProps) {
   const safeTabs = tabs.length === 5 ? tabs : defaultTabs;
   const [activeTabId, setActiveTabId] = useState(safeTabs[0].id);
+  const [mountedTabIds, setMountedTabIds] = useState<Set<string>>(
+    () => new Set([safeTabs[0].id])
+  );
 
   const activeTab =
     safeTabs.find((tab) => tab.id === activeTabId) ?? safeTabs[0];
+
+  function getTabContent(tabId: string, description: string) {
+    if (tabId === "overview" && overviewContent) {
+      return overviewContent;
+    }
+
+    if (tabId === "audience" && curateContent) {
+      return curateContent;
+    }
+
+    if (tabId === "content" && designContent) {
+      return designContent;
+    }
+
+    if (tabId === "revenue" && reviewContent) {
+      return reviewContent;
+    }
+
+    return <p className="app-text-muted text-sm">{description}</p>;
+  }
+
+  function handleTabChange(tabId: string) {
+    setActiveTabId(tabId);
+    setMountedTabIds((current) => {
+      if (current.has(tabId)) {
+        return current;
+      }
+
+      const next = new Set(current);
+      next.add(tabId);
+      return next;
+    });
+  }
 
   return (
     <div className="space-y-3">
@@ -79,7 +115,7 @@ export default function DetailTabs({
             <button
               key={tab.id}
               type="button"
-              onClick={() => setActiveTabId(tab.id)}
+              onClick={() => handleTabChange(tab.id)}
               className="app-btn-ghost px-3 py-2 text-xs font-medium"
               style={
                 isActive
@@ -99,17 +135,19 @@ export default function DetailTabs({
 
       <div className="app-kpi p-4">
         <h4 className="text-sm font-semibold">{activeTab.title}</h4>
-        {activeTab.id === "overview" && overviewContent ? (
-          <div className="mt-2">{overviewContent}</div>
-        ) : activeTab.id === "audience" && curateContent ? (
-          <div className="mt-2">{curateContent}</div>
-        ) : activeTab.id === "content" && designContent ? (
-          <div className="mt-2">{designContent}</div>
-        ) : activeTab.id === "revenue" && reviewContent ? (
-          <div className="mt-2">{reviewContent}</div>
-        ) : (
-          <p className="app-text-muted mt-2 text-sm">{activeTab.description}</p>
-        )}
+        {safeTabs.map((tab) => {
+          if (!mountedTabIds.has(tab.id)) {
+            return null;
+          }
+
+          const isActive = tab.id === activeTab.id;
+
+          return (
+            <div key={tab.id} className={isActive ? "mt-2" : "mt-2 hidden"}>
+              {getTabContent(tab.id, tab.description)}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

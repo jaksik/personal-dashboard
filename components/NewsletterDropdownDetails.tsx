@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { operationLogTargets } from "@/components/BeeHiiv/BeeHiivCreateTabLogTargets";
 import BeeHiivCurateTab from "@/components/BeeHiiv/BeeHiivCurateTab";
 import BeeHiivDesignTab from "@/components/BeeHiiv/BeeHiivDesignTab";
 import BeeHiivReviewTab from "@/components/BeeHiiv/BeeHiivReviewTab";
@@ -13,7 +12,7 @@ export const newsletterDropdownDetailsById: Record<string, ReactNode> = {
       <h4 className="text-lg font-semibold">Publish Newsletter</h4>
 
       <DetailTabs
-        overviewContent={<OperationLogStatusList items={operationLogTargets} />}
+        overviewContent={<OperationLogStatusList />}
         curateContent={<BeeHiivCurateTab />}
         designContent={<BeeHiivDesignTab />}
         reviewContent={<BeeHiivReviewTab />}
@@ -28,7 +27,7 @@ export const newsletterDropdownDetailsById: Record<string, ReactNode> = {
         conversion, and funnel metrics.
       </p>
       <DetailTabs
-        overviewContent={<OperationLogStatusList items={operationLogTargets} />}
+        overviewContent={<OperationLogStatusList />}
         curateContent={<BeeHiivCurateTab />}
         designContent={<BeeHiivDesignTab />}
         reviewContent={<BeeHiivReviewTab />}

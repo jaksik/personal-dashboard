@@ -1,6 +1,11 @@
-import { createClient } from "@/utils/supabase/server";
+"use client";
+
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 import BeeHiivCurateModal from "@/components/BeeHiiv/BeeHiivCurateModal";
 import BeeHiivLastSyncedBadge from "@/components/BeeHiiv/BeeHiivLastSyncedBadge";
+import BeeHiivNewsletterSelector from "@/components/BeeHiiv/BeeHiivNewsletterSelector";
+import { useSelectedNewsletterId } from "@/components/BeeHiiv/useSelectedNewsletterId";
 
 function formatDate(value: string) {
   const date = new Date(value);
@@ -47,48 +52,79 @@ function PendingIcon() {
   );
 }
 
-export default async function BeeHiivCurateTab() {
-  const syncedAt = new Date();
-  const supabase = await createClient();
-  const cutoff = new Date(new Date().getTime() - 12 * 60 * 60 * 1000).toISOString();
+type CurateNewsletter = {
+  id: number;
+  title: string | null;
+  created_at: string;
+};
 
-  const { data: newsletters } = await supabase
-    .from("newsletters")
-    .select("id, title, created_at")
-    .gte("created_at", cutoff)
-    .order("created_at", { ascending: false })
-    .limit(1);
+export default function BeeHiivCurateTab() {
+  const { selectedNewsletterId } = useSelectedNewsletterId();
+  const [syncedAt, setSyncedAt] = useState(new Date());
+  const [newsletter, setNewsletter] = useState<CurateNewsletter | null>(null);
+  const [articleCount, setArticleCount] = useState(0);
+  const [jobCount, setJobCount] = useState(0);
 
-  const latestNewsletter = newsletters?.[0] ?? null;
+  useEffect(() => {
+    async function loadCurateSummary() {
+      const supabase = createClient();
+      const cutoff = new Date(new Date().getTime() - 12 * 60 * 60 * 1000).toISOString();
 
-  let articleCount = 0;
-  let jobCount = 0;
+      const newsletterQuery = supabase
+        .from("newsletters")
+        .select("id, title, created_at")
+        .order("created_at", { ascending: false })
+        .limit(1);
 
-  if (latestNewsletter) {
-    const [{ count: articles }, { count: jobs }] = await Promise.all([
-      supabase
-        .from("articles")
-        .select("id", { count: "exact", head: true })
-        .eq("newsletter_id", latestNewsletter.id),
-      supabase
-        .from("job_postings")
-        .select("id", { count: "exact", head: true })
-        .eq("newsletter_id", latestNewsletter.id),
-    ]);
+      if (selectedNewsletterId != null) {
+        newsletterQuery.eq("id", selectedNewsletterId);
+      } else {
+        newsletterQuery.gte("created_at", cutoff);
+      }
 
-    articleCount = articles ?? 0;
-    jobCount = jobs ?? 0;
-  }
+      const { data: newsletters } = await newsletterQuery;
+      const selectedNewsletter = newsletters?.[0] ?? null;
 
-  const referenceDate = latestNewsletter?.created_at
-    ? formatDate(latestNewsletter.created_at)
-    : "Pending";
-  const referenceName = latestNewsletter?.title ?? "No newsletter";
+      setNewsletter(selectedNewsletter);
+
+      if (!selectedNewsletter) {
+        setArticleCount(0);
+        setJobCount(0);
+        setSyncedAt(new Date());
+        return;
+      }
+
+      const [{ count: articles }, { count: jobs }] = await Promise.all([
+        supabase
+          .from("articles")
+          .select("id", { count: "exact", head: true })
+          .eq("newsletter_id", selectedNewsletter.id),
+        supabase
+          .from("job_postings")
+          .select("id", { count: "exact", head: true })
+          .eq("newsletter_id", selectedNewsletter.id),
+      ]);
+
+      setArticleCount(articles ?? 0);
+      setJobCount(jobs ?? 0);
+      setSyncedAt(new Date());
+    }
+
+    loadCurateSummary();
+  }, [selectedNewsletterId]);
+
+  const referenceDate = newsletter?.created_at ? formatDate(newsletter.created_at) : "Pending";
+  const referenceName = newsletter?.title ?? "No newsletter";
 
   return (
     <div className="space-y-4">
-      <BeeHiivLastSyncedBadge syncedAt={syncedAt} />
-      <BeeHiivCurateModal />
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <BeeHiivNewsletterSelector />
+          <BeeHiivCurateModal />
+        </div>
+        <BeeHiivLastSyncedBadge syncedAt={syncedAt} />
+      </div>
       <div className="flex items-center gap-3">
         {articleCount > 0 ? <SuccessIcon /> : <PendingIcon />}
         <p className="font-medium sm:text-base">
