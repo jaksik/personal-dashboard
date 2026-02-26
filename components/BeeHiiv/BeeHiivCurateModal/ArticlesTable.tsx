@@ -115,6 +115,7 @@ export default function ArticlesTable({
                     Created
                   </button>
                 </th>
+                <th className="px-4 py-3 font-semibold">Source</th>
                 <th className="px-4 py-3 font-semibold">
                   <button type="button" onClick={() => applySort("publisher")}>
                     Publisher
@@ -137,19 +138,19 @@ export default function ArticlesTable({
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-6 text-center app-text-muted">
+                  <td colSpan={6} className="px-4 py-6 text-center app-text-muted">
                     Loading articles...
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-6 text-center app-text-danger">
+                  <td colSpan={6} className="px-4 py-6 text-center app-text-danger">
                     {error}
                   </td>
                 </tr>
               ) : visibleArticles.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-6 text-center app-text-muted">
+                  <td colSpan={6} className="px-4 py-6 text-center app-text-muted">
                     No articles found for the current filter.
                   </td>
                 </tr>
@@ -159,6 +160,7 @@ export default function ArticlesTable({
                     <td className="px-4 py-3 app-text-muted">
                       {formatMonthDay(article.created_at)}
                     </td>
+                    <td className="px-4 py-3 app-text-muted">{article.source ?? "—"}</td>
                     <td className="px-4 py-3 app-text-muted">{article.publisher ?? "—"}</td>
                     <td className="px-4 py-3 app-text-muted">{article.category ?? "—"}</td>
                     <td className="px-4 py-3">

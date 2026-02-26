@@ -58,12 +58,25 @@ type CurateNewsletter = {
   created_at: string;
 };
 
+type CategoryCounter = {
+  category: string;
+  count: number;
+};
+
+const fixedCategoryBadges = [
+  { category: "Feature", color: "var(--chart-1)" },
+  { category: "Brief", color: "var(--chart-2)" },
+  { category: "Economy", color: "var(--chart-3)" },
+  { category: "Research", color: "var(--chart-4)" },
+];
+
 export default function BeeHiivCurateTab() {
   const { selectedNewsletterId } = useSelectedNewsletterId();
   const [syncedAt, setSyncedAt] = useState(new Date());
   const [newsletter, setNewsletter] = useState<CurateNewsletter | null>(null);
   const [articleCount, setArticleCount] = useState(0);
   const [jobCount, setJobCount] = useState(0);
+  const [categoryCounters, setCategoryCounters] = useState<CategoryCounter[]>([]);
 
   useEffect(() => {
     async function loadCurateSummary() {
@@ -90,11 +103,16 @@ export default function BeeHiivCurateTab() {
       if (!selectedNewsletter) {
         setArticleCount(0);
         setJobCount(0);
+        setCategoryCounters([]);
         setSyncedAt(new Date());
         return;
       }
 
-      const [{ count: articles }, { count: jobs }] = await Promise.all([
+      const [
+        { count: articles },
+        { count: jobs },
+        { data: articleCategories },
+      ] = await Promise.all([
         supabase
           .from("articles")
           .select("id", { count: "exact", head: true })
@@ -103,10 +121,35 @@ export default function BeeHiivCurateTab() {
           .from("job_postings")
           .select("id", { count: "exact", head: true })
           .eq("newsletter_id", selectedNewsletter.id),
+        supabase
+          .from("articles")
+          .select("category")
+          .eq("newsletter_id", selectedNewsletter.id),
       ]);
+
+      const categoryCounts = new Map<string, number>();
+
+      for (const article of articleCategories ?? []) {
+        const normalizedCategory = article.category?.trim().toLowerCase() ?? "";
+
+        if (!normalizedCategory) {
+          continue;
+        }
+
+        categoryCounts.set(
+          normalizedCategory,
+          (categoryCounts.get(normalizedCategory) ?? 0) + 1
+        );
+      }
+
+      const nextCounters = fixedCategoryBadges.map((badge) => ({
+        category: badge.category,
+        count: categoryCounts.get(badge.category.toLowerCase()) ?? 0,
+      }));
 
       setArticleCount(articles ?? 0);
       setJobCount(jobs ?? 0);
+      setCategoryCounters(nextCounters);
       setSyncedAt(new Date());
     }
 
@@ -127,26 +170,51 @@ export default function BeeHiivCurateTab() {
       </div>
       <div className="flex items-center gap-3">
         {articleCount > 0 ? <SuccessIcon /> : <PendingIcon />}
-        <p className="font-medium sm:text-base">
-          <span className="font-semibold">Curate Articles</span>{" "}
-          <span className="text-sm">
-            - {referenceDate} - {referenceName} - {articleCount > 0
-              ? `${articleCount} associated article${articleCount === 1 ? "" : "s"}`
-              : "No associated articles found"}
-          </span>
-        </p>
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-semibold sm:text-base">Curate Articles</span>
+            {articleCount === 0 ? (
+              <span className="text-sm">No articles associated with the selected newsletter.</span>
+            ) : (
+              categoryCounters.map((counter) => {
+                const color =
+                  fixedCategoryBadges.find((badge) => badge.category === counter.category)?.color ??
+                  "var(--chart-1)";
+
+                return (
+                  <span
+                    key={counter.category}
+                    className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold"
+                    style={{
+                      color,
+                      borderColor: `color-mix(in srgb, ${color} 45%, transparent)`,
+                      backgroundColor: `color-mix(in srgb, ${color} 12%, transparent)`,
+                    }}
+                  >
+                    {counter.category}: {counter.count}
+                  </span>
+                );
+              })
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="flex items-center gap-3">
         {jobCount > 0 ? <SuccessIcon /> : <PendingIcon />}
-        <p className="font-medium sm:text-base">
-          <span className="font-semibold">Curate Jobs</span>{" "}
-          <span className="text-sm">
-            - {referenceDate} - {referenceName} - {jobCount > 0
-              ? `${jobCount} associated job${jobCount === 1 ? "" : "s"}`
-              : "No associated jobs found"}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-semibold sm:text-base">Curate Jobs</span>
+          <span
+            className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold"
+            style={{
+              color: "var(--chart-4)",
+              borderColor: "color-mix(in srgb, var(--chart-4) 45%, transparent)",
+              backgroundColor: "color-mix(in srgb, var(--chart-4) 12%, transparent)",
+            }}
+          >
+            Job Postings: {jobCount}
           </span>
-        </p>
+        </div>
       </div>
     </div>
   );

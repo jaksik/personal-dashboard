@@ -69,19 +69,19 @@ export default async function Home() {
               <div className="grid grid-cols-2 divide-x divide-y divide-foreground/20 md:grid-cols-4 md:divide-y-0">
                 <div className="px-4 py-6 text-center">
                   <p className="app-text-muted text-md">Active Systems</p>
-                  <p className="mt-2 text-5xl font-semibold leading-none">3</p>
+                  <p className="mt-2 text-4xl font-semibold leading-none">3</p>
                 </div>
                 <div className="px-4 py-6 text-center">
                   <p className="app-text-muted text-md">Weekly Checkins</p>
-                  <p className="mt-2 text-5xl font-semibold leading-none">7</p>
+                  <p className="mt-2 text-4xl font-semibold leading-none">7</p>
                 </div>
                 <div className="px-4 py-6 text-center">
                   <p className="app-text-muted text-md">Time Commitment</p>
-                  <p className="mt-2 text-5xl font-semibold leading-none">12 h/w</p>
+                  <p className="mt-2 text-4xl font-semibold leading-none">12 h/w</p>
                 </div>
                 <div className="px-4 py-6 text-center">
                   <p className="app-text-muted text-md">Revenue Potential</p>
-                  <p className="mt-2 text-5xl font-semibold leading-none">~$7k/w</p>
+                  <p className="mt-2 text-4xl font-semibold leading-none">~$7k/w</p>
                 </div>
               </div>
             </div>
