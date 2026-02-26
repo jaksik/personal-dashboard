@@ -10,7 +10,7 @@ export type ArticleRow = Pick<
   | "publisher"
   | "published_at"
   | "created_at"
-  | "source_feature"
+  | "source"
   | "newsletter_id"
 >;
 

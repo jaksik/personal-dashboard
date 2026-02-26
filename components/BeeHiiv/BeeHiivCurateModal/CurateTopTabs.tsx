@@ -7,12 +7,12 @@ type CurateTopTabsProps = {
 
 export default function CurateTopTabs({ activeTab, onChange }: CurateTopTabsProps) {
   return (
-    <div className="app-kpi p-2">
-      <div className="grid grid-cols-2 gap-2">
+    <div className="app-kpi p-1.5">
+      <div className="grid grid-cols-2 gap-1.5">
         <button
           type="button"
           onClick={() => onChange("articles")}
-          className={`app-btn-ghost rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+          className={`app-btn-ghost rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
             activeTab === "articles"
               ? "border-transparent"
               : ""
@@ -32,7 +32,7 @@ export default function CurateTopTabs({ activeTab, onChange }: CurateTopTabsProp
         <button
           type="button"
           onClick={() => onChange("jobs")}
-          className={`app-btn-ghost rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+          className={`app-btn-ghost rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
             activeTab === "jobs"
               ? "border-transparent"
               : ""

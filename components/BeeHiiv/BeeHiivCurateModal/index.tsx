@@ -20,6 +20,7 @@ export default function BeeHiivCurateModal() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [selectedArticleIds, setSelectedArticleIds] = useState<number[]>([]);
   const [addingArticleIds, setAddingArticleIds] = useState<number[]>([]);
+  const [addingJobIds, setAddingJobIds] = useState<number[]>([]);
   const [targetNewsletter, setTargetNewsletter] = useState<{
     id: number;
     title: string | null;
@@ -53,7 +54,7 @@ export default function BeeHiivCurateModal() {
         supabase
           .from("articles")
           .select(
-            "id, title_snippet, title, description, category, publisher, published_at, created_at, source_feature, newsletter_id"
+            "id, title_snippet, title, description, category, publisher, published_at, created_at, source, newsletter_id"
           )
           .order("created_at", { ascending: false })
           .limit(150),
@@ -274,6 +275,41 @@ export default function BeeHiivCurateModal() {
     setSelectedArticleIds([]);
   }
 
+  function isJobInTargetNewsletter(job: JobPostingRow) {
+    return targetNewsletter ? job.newsletter_id === targetNewsletter.id : false;
+  }
+
+  async function addJobToNewsletter(jobId: number) {
+    if (!targetNewsletter) {
+      setActionError("No newsletter found in the last 12 hours to attach jobs to.");
+      return;
+    }
+
+    setActionError(null);
+    setAddingJobIds((current) => [...current, jobId]);
+
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("job_postings")
+      .update({ newsletter_id: targetNewsletter.id })
+      .eq("id", jobId);
+
+    setAddingJobIds((current) => current.filter((id) => id !== jobId));
+
+    if (error) {
+      setActionError(error.message);
+      return;
+    }
+
+    setJobPostings((current) =>
+      current.map((job) =>
+        job.id === jobId
+          ? { ...job, newsletter_id: targetNewsletter.id }
+          : job
+      )
+    );
+  }
+
   return (
     <>
       <div className="flex justify-start">
@@ -291,11 +327,11 @@ export default function BeeHiivCurateModal() {
         onClose={() => setIsOpen(false)}
         title="Newsletter Curation Workspace"
         description="Browse and curate article and job candidates for newsletter publishing."
+        headerLeft={<CurateTopTabs activeTab={activeTab} onChange={setActiveTab} />}
+        headerLeftAlignment="center"
         maxWidthClassName="max-w-6xl"
       >
         <div className="space-y-4">
-          <CurateTopTabs activeTab={activeTab} onChange={setActiveTab} />
-
           {activeTab === "articles" ? (
             <ArticlesTable
               targetNewsletterTitle={targetNewsletter?.title ?? null}
@@ -321,7 +357,17 @@ export default function BeeHiivCurateModal() {
               isArticleInTargetNewsletter={isArticleInTargetNewsletter}
             />
           ) : (
-            <JobsTable isLoading={isLoading} error={error} jobs={jobPostings} />
+            <JobsTable
+              targetNewsletterTitle={targetNewsletter?.title ?? null}
+              hasTargetNewsletter={Boolean(targetNewsletter)}
+              actionError={actionError}
+              isLoading={isLoading}
+              error={error}
+              jobs={jobPostings}
+              addJobToNewsletter={addJobToNewsletter}
+              addingJobIds={addingJobIds}
+              isJobInTargetNewsletter={isJobInTargetNewsletter}
+            />
           )}
         </div>
       </ModalShell>
