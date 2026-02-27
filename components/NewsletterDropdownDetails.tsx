@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
-import BeeHiivCurateTab from "@/components/BeeHiiv/BeeHiivCurateTab";
-import BeeHiivDesignTab from "@/components/BeeHiiv/BeeHiivDesignTab";
-import BeeHiivReviewTab from "@/components/BeeHiiv/BeeHiivReviewTab";
-import BeeHiivNewsletterSelectorWithCreate from "@/components/BeeHiiv/BeeHiivNewsletterSelectorWithCreate";
-import DetailTabs from "@/components/BeeHiiv/OperationTabs";
-import OperationLogStatusList from "@/components/BeeHiiv/BeeHiivCreateTab";
+import BeeHiivCurateTab from "@/components/BeeHiiv/TaskTabs/BeeHiivCurateTab";
+import BeeHiivDesignTab from "@/components/BeeHiiv/TaskTabs/BeeHiivDesignTab";
+import BeeHiivReviewTab from "@/components/BeeHiiv/TaskTabs/BeeHiivReviewTab";
+import BeeHiivNewsletterSelectorWithCreate from "./BeeHiiv/BeeHiivNewsletterSelectorWithCreate";
+import DetailTabs from "@/components/BeeHiiv/TaskTabs";
+import OperationLogStatusList from "@/components/BeeHiiv/TaskTabs/BeeHiivCreateTab";
 
 export type NewsletterDropdownDetailGroup = {
   primary: ReactNode;
