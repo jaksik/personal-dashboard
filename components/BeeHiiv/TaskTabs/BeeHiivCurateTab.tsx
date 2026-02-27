@@ -43,51 +43,75 @@ type CategoryCounter = {
   count: number;
 };
 
-const fixedCategoryBadges = [
-  { category: "Feature", color: "var(--chart-1)" },
-  { category: "Brief", color: "var(--chart-2)" },
-  { category: "Economy", color: "var(--chart-3)" },
-  { category: "Research", color: "var(--chart-4)" },
-];
+const fixedCategories = ["Feature", "Brief", "Economy", "Research", "Uncategorized"];
 
 export default function BeeHiivCurateTab() {
-  const { selectedNewsletterId } = useSelectedNewsletterId();
+  const { selectedNewsletterId, setSelectedNewsletterId } = useSelectedNewsletterId();
   const [syncedAt, setSyncedAt] = useState(new Date());
   const [articleCount, setArticleCount] = useState(0);
   const [jobCount, setJobCount] = useState(0);
   const [categoryCounters, setCategoryCounters] = useState<CategoryCounter[]>([]);
   const [activeNewsletterId, setActiveNewsletterId] = useState<number | null>(null);
+  const [isResolvingNewsletter, setIsResolvingNewsletter] = useState(true);
 
   useEffect(() => {
-    async function loadCurateSummary() {
-      const supabase = createClient();
-      const cutoff = new Date(new Date().getTime() - 12 * 60 * 60 * 1000).toISOString();
+    let isCurrent = true;
 
-      const newsletterQuery = supabase
-        .from("newsletters")
-        .select("id, title, created_at")
-        .order("created_at", { ascending: false })
-        .limit(1);
+    async function loadCurateSummary() {
+      setIsResolvingNewsletter(true);
+      const supabase = createClient();
+
+      let selectedNewsletter: { id: number } | null = null;
 
       if (selectedNewsletterId != null) {
-        newsletterQuery.eq("id", selectedNewsletterId);
-      } else {
-        newsletterQuery.gte("created_at", cutoff);
+        const { data: newsletterById } = await supabase
+          .from("newsletters")
+          .select("id")
+          .eq("id", selectedNewsletterId)
+          .limit(1)
+          .maybeSingle();
+
+        if (!isCurrent) {
+          return;
+        }
+
+        selectedNewsletter = newsletterById ?? null;
       }
 
-      const { data: newsletters } = await newsletterQuery;
-      const selectedNewsletter = newsletters?.[0] ?? null;
+      if (!selectedNewsletter) {
+        const { data: latestNewsletter } = await supabase
+          .from("newsletters")
+          .select("id")
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (!isCurrent) {
+          return;
+        }
+
+        selectedNewsletter = latestNewsletter ?? null;
+      }
 
       if (!selectedNewsletter) {
+        if (!isCurrent) {
+          return;
+        }
+
         setArticleCount(0);
         setJobCount(0);
         setCategoryCounters([]);
         setActiveNewsletterId(null);
         setSyncedAt(new Date());
+        setIsResolvingNewsletter(false);
         return;
       }
 
       setActiveNewsletterId(selectedNewsletter.id);
+
+      if (selectedNewsletterId !== selectedNewsletter.id) {
+        setSelectedNewsletterId(selectedNewsletter.id);
+      }
 
       const [
         { count: articles },
@@ -108,14 +132,14 @@ export default function BeeHiivCurateTab() {
           .eq("newsletter_id", selectedNewsletter.id),
       ]);
 
+      if (!isCurrent) {
+        return;
+      }
+
       const categoryCounts = new Map<string, number>();
 
       for (const article of articleCategories ?? []) {
-        const normalizedCategory = article.category?.trim().toLowerCase() ?? "";
-
-        if (!normalizedCategory) {
-          continue;
-        }
+        const normalizedCategory = article.category?.trim().toLowerCase() || "uncategorized";
 
         categoryCounts.set(
           normalizedCategory,
@@ -123,67 +147,69 @@ export default function BeeHiivCurateTab() {
         );
       }
 
-      const nextCounters = fixedCategoryBadges.map((badge) => ({
-        category: badge.category,
-        count: categoryCounts.get(badge.category.toLowerCase()) ?? 0,
+      const nextCounters = fixedCategories.map((category) => ({
+        category,
+        count: categoryCounts.get(category.toLowerCase()) ?? 0,
       }));
 
       setArticleCount(articles ?? 0);
       setJobCount(jobs ?? 0);
       setCategoryCounters(nextCounters);
       setSyncedAt(new Date());
+      setIsResolvingNewsletter(false);
     }
 
     loadCurateSummary();
-  }, [selectedNewsletterId]);
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [selectedNewsletterId, setSelectedNewsletterId]);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto]">
+      <div className="space-y-4">
+        <div className="flex items-start gap-3">
+          {articleCount > 0 ? <SuccessIcon /> : <PendingIcon />}
+          <div className="space-y-2">
+            <div className="space-y-2">
+              <p className="font-medium sm:text-base">
+                <span className="font-semibold">{articleCount}</span>{" "}
+                <span className="text-md">- Articles Selected</span>
+              </p>
+              {articleCount > 0 ? (
+                <ul className="app-text-muted list-disc space-y-1 pl-5 text-sm">
+                  {categoryCounters.map((counter) => (
+                    <li key={counter.category}>
+                      {counter.category}: {counter.count}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {jobCount > 0 ? <SuccessIcon /> : <PendingIcon />}
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-medium sm:text-base">
+              <span className="font-semibold">{jobCount}</span>{" "}
+              <span className="text-md">- Jobs Selected</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end">
+        <div className="flex flex-col items-end gap-2">
+          <BeeHiivLastSyncedBadge syncedAt={syncedAt} />
           <Link
             href="/newsletter/curate"
             className="app-btn-ghost inline-flex items-center px-3 py-1.5 text-xs font-medium"
           >
             Curate Workspace
           </Link>
-        </div>
-        <BeeHiivLastSyncedBadge syncedAt={syncedAt} />
-      </div>
-      <div className="flex items-start gap-3">
-        {articleCount > 0 ? <SuccessIcon /> : <PendingIcon />}
-        <div className="space-y-2">
-          <div className="space-y-2">
-            <p className="font-medium sm:text-base">
-              <span className="font-semibold">{articleCount}</span>{" "}
-              <span className="text-md">- Articles Selected</span>
-            </p>
-            {articleCount === 0 ? (
-              <span className="text-sm">
-                {activeNewsletterId == null
-                  ? "No newsletter selected for this time window."
-                  : "No articles associated with the selected newsletter."}
-              </span>
-            ) : (
-              <ul className="app-text-muted list-disc space-y-1 pl-5 text-sm">
-                {categoryCounters.map((counter) => (
-                  <li key={counter.category}>
-                    {counter.category}: {counter.count}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-3">
-        {jobCount > 0 ? <SuccessIcon /> : <PendingIcon />}
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="font-medium sm:text-base">
-            <span className="font-semibold">{jobCount}</span>{" "}
-            <span className="text-md">- Jobs Selected</span>
-          </p>
         </div>
       </div>
     </div>

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import BeeHiivLastSyncedBadge from "@/components/BeeHiiv/BeeHiivLastSyncedBadge";
-import BeeHiivDesignModal from "@/components/BeeHiiv/BeeHiivDesignModal";
 import { useSelectedNewsletterId } from "@/components/BeeHiiv/useSelectedNewsletterId";
 import { createClient } from "@/utils/supabase/client";
 
@@ -53,31 +52,61 @@ type DesignNewsletter = {
 };
 
 export default function BeeHiivDesignTab() {
-  const { selectedNewsletterId } = useSelectedNewsletterId();
+  const { selectedNewsletterId, setSelectedNewsletterId } = useSelectedNewsletterId();
   const [syncedAt, setSyncedAt] = useState(new Date());
   const [newsletter, setNewsletter] = useState<DesignNewsletter | null>(null);
   const [featureArticleSnippet, setFeatureArticleSnippet] = useState<string | null>(null);
+  const [isResolvingNewsletter, setIsResolvingNewsletter] = useState(true);
 
   useEffect(() => {
-    async function loadDesignSummary() {
-      const supabase = createClient();
-      const cutoff = new Date(new Date().getTime() - 12 * 60 * 60 * 1000).toISOString();
+    let isCurrent = true;
 
-      const newsletterQuery = supabase
-        .from("newsletters")
-        .select("id, title, sub_title, cover_image, cover_article, created_at")
-        .order("created_at", { ascending: false })
-        .limit(1);
+    async function loadDesignSummary() {
+      setIsResolvingNewsletter(true);
+      const supabase = createClient();
+
+      let resolvedNewsletter: DesignNewsletter | null = null;
 
       if (selectedNewsletterId != null) {
-        newsletterQuery.eq("id", selectedNewsletterId);
-      } else {
-        newsletterQuery.gte("created_at", cutoff);
+        const { data: newsletterById } = await supabase
+          .from("newsletters")
+          .select("id, title, sub_title, cover_image, cover_article, created_at")
+          .eq("id", selectedNewsletterId)
+          .limit(1)
+          .maybeSingle();
+
+        if (!isCurrent) {
+          return;
+        }
+
+        resolvedNewsletter = newsletterById ?? null;
       }
 
-      const { data: newsletters } = await newsletterQuery;
-      const selectedNewsletter = newsletters?.[0] ?? null;
+      if (!resolvedNewsletter) {
+        const { data: latestNewsletter } = await supabase
+          .from("newsletters")
+          .select("id, title, sub_title, cover_image, cover_article, created_at")
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (!isCurrent) {
+          return;
+        }
+
+        resolvedNewsletter = latestNewsletter ?? null;
+      }
+
+      const selectedNewsletter = resolvedNewsletter;
+      if (!isCurrent) {
+        return;
+      }
+
       setNewsletter(selectedNewsletter);
+
+      if (selectedNewsletter && selectedNewsletterId !== selectedNewsletter.id) {
+        setSelectedNewsletterId(selectedNewsletter.id);
+      }
 
       if (selectedNewsletter?.cover_article != null) {
         const { data: featureArticle } = await supabase
@@ -87,16 +116,25 @@ export default function BeeHiivDesignTab() {
           .limit(1)
           .maybeSingle();
 
+        if (!isCurrent) {
+          return;
+        }
+
         setFeatureArticleSnippet(featureArticle?.title_snippet ?? null);
       } else {
         setFeatureArticleSnippet(null);
       }
 
       setSyncedAt(new Date());
+      setIsResolvingNewsletter(false);
     }
 
     loadDesignSummary();
-  }, [selectedNewsletterId]);
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [selectedNewsletterId, setSelectedNewsletterId]);
 
   const checks = useMemo(
     () => [
@@ -134,9 +172,35 @@ export default function BeeHiivDesignTab() {
   );
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto]">
+      <div className="space-y-4">
+        {checks.map((check) => (
+          <div key={check.label} className="flex items-center gap-3">
+            {check.success ? <SuccessIcon /> : <PendingIcon />}
+            <p className="font-medium sm:text-base">
+              <span className="font-semibold">{check.label}</span>{" "}
+              {check.hideDetails ? null : (
+                <span className="text-sm">
+                  {check.includeReferenceMetadata
+                    ? "- "
+                    : "- "}
+                  {newsletter
+                    ? check.success
+                      ? check.successMessage
+                      : check.pendingMessage
+                    : isResolvingNewsletter
+                      ? "Loading selected newsletter..."
+                      : "No newsletters available."}
+                </span>
+              )}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex justify-end">
+        <div className="flex flex-col items-end gap-2">
+          <BeeHiivLastSyncedBadge syncedAt={syncedAt} />
           <Link
             href="/newsletter/design"
             className="app-btn-ghost inline-flex items-center px-3 py-1.5 text-xs font-medium"
@@ -144,29 +208,7 @@ export default function BeeHiivDesignTab() {
             Design Workspace
           </Link>
         </div>
-        <BeeHiivLastSyncedBadge syncedAt={syncedAt} />
       </div>
-
-      {checks.map((check) => (
-        <div key={check.label} className="flex items-center gap-3">
-          {check.success ? <SuccessIcon /> : <PendingIcon />}
-          <p className="font-medium sm:text-base">
-            <span className="font-semibold">{check.label}</span>{" "}
-            {check.hideDetails ? null : (
-              <span className="text-sm">
-                {check.includeReferenceMetadata
-                  ? "- "
-                  : "- "}
-                {newsletter
-                  ? check.success
-                    ? check.successMessage
-                    : check.pendingMessage
-                  : "No newsletter created in last 12 hours"}
-              </span>
-            )}
-          </p>
-        </div>
-      ))}
     </div>
   );
 }

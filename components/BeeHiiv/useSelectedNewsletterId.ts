@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const SELECTED_NEWSLETTER_STORAGE_KEY = "beehiiv:selected-newsletter-id";
 const SELECTED_NEWSLETTER_EVENT = "beehiiv:selected-newsletter-id:changed";
@@ -55,7 +55,7 @@ export function useSelectedNewsletterId() {
     };
   }, []);
 
-  function updateSelectedNewsletterId(nextId: number | null) {
+  const updateSelectedNewsletterId = useCallback((nextId: number | null) => {
     if (nextId == null) {
       window.localStorage.removeItem(SELECTED_NEWSLETTER_STORAGE_KEY);
     } else {
@@ -64,7 +64,7 @@ export function useSelectedNewsletterId() {
 
     setSelectedNewsletterId(nextId);
     window.dispatchEvent(new Event(SELECTED_NEWSLETTER_EVENT));
-  }
+  }, []);
 
   return {
     selectedNewsletterId,

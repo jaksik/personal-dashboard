@@ -3,6 +3,38 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
 
+function SuccessIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-label="Success">
+      <circle cx="12" cy="12" r="10" fill="none" stroke="#65e26d" strokeWidth="1.8" />
+      <path
+        d="M7.5 12.2 10.6 15.3 16.7 9.2"
+        fill="none"
+        stroke="#65e26d"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function PendingIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-label="Pending">
+      <circle cx="12" cy="12" r="10" fill="none" stroke="#facc15" strokeWidth="1.8" />
+      <path
+        d="M12 7.5v5l3 2"
+        fill="none"
+        stroke="#facc15"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export type DetailTab = {
   id: string;
   label: string;
@@ -15,7 +47,6 @@ type DetailTabsProps = {
   overviewContent?: ReactNode;
   curateContent?: ReactNode;
   designContent?: ReactNode;
-  reviewContent?: ReactNode;
 };
 
 const defaultTabs: DetailTab[] = [
@@ -41,13 +72,6 @@ const defaultTabs: DetailTab[] = [
       "Use this area for top-performing content, drafts queue, and publishing cadence details.",
   },
   {
-    id: "revenue",
-    label: "Review",
-    title: "",
-    description:
-      "Display sponsorship performance, conversion value, and projected revenue breakdowns here.",
-  },
-  {
     id: "tasks",
     label: "Publish",
     title: "",
@@ -61,9 +85,8 @@ export default function DetailTabs({
   overviewContent,
   curateContent,
   designContent,
-  reviewContent,
 }: DetailTabsProps) {
-  const safeTabs = tabs.length === 5 ? tabs : defaultTabs;
+  const safeTabs = tabs.length === 4 ? tabs : defaultTabs;
   const [activeTabId, setActiveTabId] = useState(safeTabs[0].id);
   const [mountedTabIds, setMountedTabIds] = useState<Set<string>>(
     () => new Set([safeTabs[0].id])
@@ -85,10 +108,6 @@ export default function DetailTabs({
       return designContent;
     }
 
-    if (tabId === "revenue" && reviewContent) {
-      return reviewContent;
-    }
-
     return <p className="app-text-muted text-sm">{description}</p>;
   }
 
@@ -107,28 +126,30 @@ export default function DetailTabs({
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {safeTabs.map((tab) => {
           const isActive = tab.id === activeTab.id;
 
           return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => handleTabChange(tab.id)}
-              className="app-btn-ghost px-3 py-2 text-xs font-medium"
-              style={
-                isActive
-                  ? {
-                      background: "var(--app-accent)",
-                      color: "var(--app-accent-foreground)",
-                      borderColor: "var(--app-accent)",
-                    }
-                  : undefined
-              }
-            >
-              {tab.label}
-            </button>
+            <div key={tab.id} className="flex flex-col items-center gap-1">
+              {isActive ? <SuccessIcon /> : <PendingIcon />}
+              <button
+                type="button"
+                onClick={() => handleTabChange(tab.id)}
+                className="app-btn-ghost w-full px-3 py-2 text-xs font-medium"
+                style={
+                  isActive
+                    ? {
+                        background: "var(--app-accent)",
+                        color: "var(--app-accent-foreground)",
+                        borderColor: "var(--app-accent)",
+                      }
+                    : undefined
+                }
+              >
+                {tab.label}
+              </button>
+            </div>
           );
         })}
       </div>
