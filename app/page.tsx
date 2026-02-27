@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { newsletterDropdownContentById } from "@/components/NewsletterDropdownDetails";
+import { getNewsletterDropdownContentById } from "@/components/NewsletterDropdownDetails";
 import { createClient } from "@/utils/supabase/server";
 import NewsletterDropdown from "@/components/NewsletterDropdown";
 import ThemeToggle from "@/components/dashboard/ThemeToggle";
@@ -28,6 +28,10 @@ export default async function Home() {
     .limit(8);
   const tasks = Array.isArray(tasksResult) ? tasksResult : [];
   const tasksErrorMessage = tasksError ? `system.tasks: ${tasksError.message}` : null;
+  const newsletterDropdownContentById = getNewsletterDropdownContentById({
+    tasks,
+    tasksErrorMessage,
+  });
 
   async function signOut() {
     "use server";
@@ -87,7 +91,7 @@ export default async function Home() {
                 </div>
               </div>
             </div>
-            <ContributionHeatMapPlaceholder />
+            {/* <ContributionHeatMapPlaceholder /> */}
 
             {newsletterDropdowns.map((item) => (
               <NewsletterDropdown

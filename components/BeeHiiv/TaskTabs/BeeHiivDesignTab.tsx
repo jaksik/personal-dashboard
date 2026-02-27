@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import BeeHiivLastSyncedBadge from "@/components/BeeHiiv/BeeHiivLastSyncedBadge";
 import BeeHiivDesignModal from "@/components/BeeHiiv/BeeHiivDesignModal";
 import { useSelectedNewsletterId } from "@/components/BeeHiiv/useSelectedNewsletterId";
@@ -136,7 +137,12 @@ export default function BeeHiivDesignTab() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <BeeHiivDesignModal />
+          <Link
+            href="/newsletter/design"
+            className="app-btn-ghost inline-flex items-center px-3 py-1.5 text-xs font-medium"
+          >
+            Design Workspace
+          </Link>
         </div>
         <BeeHiivLastSyncedBadge syncedAt={syncedAt} />
       </div>

@@ -1,9 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { NewsletterOption } from "./types";
 
-type CurateNewsletterSelectProps = {
+type NewsletterOption = {
+  id: number;
+  created_at: string;
+};
+
+type NewsletterSelectProps = {
   value: number | null;
   onChange: (newsletterId: number | null) => void;
 };
@@ -17,13 +21,8 @@ function formatOptionDate(value: string) {
   return `${month}/${day}`;
 }
 
-export default function CurateNewsletterSelect({
-  value,
-  onChange,
-}: CurateNewsletterSelectProps) {
-  const [newsletters, setNewsletters] = useState<NewsletterOption[]>(
-    () => cachedNewsletters ?? []
-  );
+export default function NewsletterSelect({ value, onChange }: NewsletterSelectProps) {
+  const [newsletters, setNewsletters] = useState<NewsletterOption[]>(() => cachedNewsletters ?? []);
   const [isLoading, setIsLoading] = useState(() => cachedNewsletters == null);
 
   useEffect(() => {

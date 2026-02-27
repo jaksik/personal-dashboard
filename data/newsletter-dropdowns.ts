@@ -32,10 +32,10 @@ export const newsletterDropdowns: NewsletterDropdownData[] = [
   {
     id: "saas-intelligence",
     category: "Market Investments",
-    title: "Recurring Asset Purchases",
+    title: "Dividend Portfolio",
     timeCommitment: "1 hour, 1/month",
-    revenuePotential: "$3,000 / week",
-    thirtyDayIncome: "$12,300",
+    revenuePotential: "$1,200 / week",
+    thirtyDayIncome: "$4,800",
     badges: [],
     imageSrc: "/robinhood-2.webp",
     details:
