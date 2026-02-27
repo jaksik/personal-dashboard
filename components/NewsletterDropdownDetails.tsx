@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import BeeHiivCurateTab from "@/components/BeeHiiv/TaskTabs/BeeHiivCurateTab";
 import BeeHiivDesignTab from "@/components/BeeHiiv/TaskTabs/BeeHiivDesignTab";
-import BeeHiivReviewTab from "@/components/BeeHiiv/TaskTabs/BeeHiivReviewTab";
+import BeeHiivCountdownTimer from "@/components/BeeHiiv/BeeHiivCountdownTimer";
 import BeeHiivNewsletterSelectorWithCreate from "./BeeHiiv/BeeHiivNewsletterSelectorWithCreate";
 import DetailTabs from "@/components/BeeHiiv/TaskTabs";
 import OperationLogStatusList from "@/components/BeeHiiv/TaskTabs/BeeHiivCreateTab";
@@ -71,14 +71,16 @@ export function getNewsletterDropdownContentById({
             <h4 className="app-text-muted text-sm">Task to Complete:</h4>
             <h4 className="text-lg font-semibold">Publish Newsletter on 2/27 by 9am</h4>
           </div>
-          <BeeHiivNewsletterSelectorWithCreate />
+          <div className="flex items-center gap-3">
+            <BeeHiivCountdownTimer />
+            <BeeHiivNewsletterSelectorWithCreate />
+          </div>
         </div>
 
         <DetailTabs
           overviewContent={<OperationLogStatusList />}
           curateContent={<BeeHiivCurateTab />}
           designContent={<BeeHiivDesignTab />}
-          reviewContent={<BeeHiivReviewTab />}
         />
       </div>
     ),

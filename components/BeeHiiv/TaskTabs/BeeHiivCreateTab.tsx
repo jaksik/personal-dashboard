@@ -100,48 +100,52 @@ export default async function OperationLogStatusList({
   const todaysNewsletter = todaysNewsletterRows?.[0] ?? null;
 
   return (
-    <div className="space-y-4">
-      <BeeHiivLastSyncedBadge syncedAt={syncedAt} />
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto]">
+      <div className="space-y-4">
+        <BeeHiivCreateTabStatusRow
+          label={`${articleCountValue}`}
+          success={articleCountValue > 0}
+          summary={` - ${
+            articleCountValue > 0
+              ? ` Article${articleCountValue === 1 ? "" : "s"} saved in the last ${lookbackHours} hours`
+              : `No articles saved in the last ${lookbackHours} hours`
+          }`}
+          logs={articleFetcherLogs ?? []}
+        />
 
-      <BeeHiivCreateTabStatusRow
-        label={`${articleCountValue}`}
-        success={articleCountValue > 0}
-        summary={` - ${
-          articleCountValue > 0
-            ? ` Article${articleCountValue === 1 ? "" : "s"} saved in the last ${lookbackHours} hours`
-            : `No articles saved in the last ${lookbackHours} hours`
-        }`}
-        logs={articleFetcherLogs ?? []}
-      />
+        <BeeHiivCreateTabStatusRow
+          label="70"
+          success={snippetCountValue > 0}
+          summary={` - Snippets generated in the last 50 hours`}
+          logs={snippetGeneratorLogs ?? []}
+        />
 
-      <BeeHiivCreateTabStatusRow
-        label="70"
-        success={snippetCountValue > 0}
-        summary={` - Snippets generated in the last 50 hours`}
-        logs={snippetGeneratorLogs ?? []}
-      />
+        <BeeHiivCreateTabStatusRow
+          label={`${jobCountValue}`}
+          success={jobCountValue > 0}
+          summary={` - ${
+            jobCountValue > 0
+              ? ` Job${jobCountValue === 1 ? "" : "s"} saved in the last ${lookbackHours} hours`
+              : `No jobs saved in the last ${lookbackHours} hours`
+          }`}
+          logs={jobFetcherLogs ?? []}
+        />
 
-      <BeeHiivCreateTabStatusRow
-        label={`${jobCountValue}`}
-        success={jobCountValue > 0}
-        summary={` - ${
-          jobCountValue > 0
-            ? ` Job${jobCountValue === 1 ? "" : "s"} saved in the last ${lookbackHours} hours`
-            : `No jobs saved in the last ${lookbackHours} hours`
-        }`}
-        logs={jobFetcherLogs ?? []}
-      />
+        <BeeHiivCreateTabStatusRow
+          label="1"
+          success={Boolean(todaysNewsletter)}
+          summary={` - ${
+            todaysNewsletter
+              ? `Newsletter created (id: ${todaysNewsletter.id}).`
+              : "No newsletter created today"
+          }`}
+          logs={createNewsletterLogs ?? []}
+        />
+      </div>
 
-      <BeeHiivCreateTabStatusRow
-        label="1"
-        success={Boolean(todaysNewsletter)}
-        summary={` - ${
-          todaysNewsletter
-            ? `Newsletter created (id: ${todaysNewsletter.id}).`
-            : "No newsletter created today"
-        }`}
-        logs={createNewsletterLogs ?? []}
-      />
+      <div className="flex justify-end self-start">
+        <BeeHiivLastSyncedBadge syncedAt={syncedAt} />
+      </div>
     </div>
   );
 }

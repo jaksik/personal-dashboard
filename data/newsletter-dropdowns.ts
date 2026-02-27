@@ -19,7 +19,7 @@ export const newsletterDropdowns: NewsletterDropdownData[] = [
   {
     id: "growth-ops",
     category: "YouTube Channel",
-    title: "Connor Jaksik's YouTube Channel",
+    title: "Sharp Startup YouTube Channel",
     timeCommitment: "45 min, 2/week",
     revenuePotential: "$2,800 / week",
     thirtyDayIncome: "$9,850",
