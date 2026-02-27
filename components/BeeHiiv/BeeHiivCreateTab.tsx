@@ -104,40 +104,40 @@ export default async function OperationLogStatusList({
       <BeeHiivLastSyncedBadge syncedAt={syncedAt} />
 
       <BeeHiivCreateTabStatusRow
-        label="Articles Saved"
+        label={`${articleCountValue}`}
         success={articleCountValue > 0}
         summary={` - ${
           articleCountValue > 0
-            ? `${articleCountValue} article${articleCountValue === 1 ? "" : "s"} saved in the last ${lookbackHours} hours`
+            ? ` Article${articleCountValue === 1 ? "" : "s"} saved in the last ${lookbackHours} hours`
             : `No articles saved in the last ${lookbackHours} hours`
         }`}
         logs={articleFetcherLogs ?? []}
       />
 
       <BeeHiivCreateTabStatusRow
-        label="Snippets Generated"
+        label="70"
         success={snippetCountValue > 0}
-        summary={` - ${snippetCountValue} successful Snippet Generator runs logged in the past 50 hours`}
+        summary={` - Snippets generated in the last 50 hours`}
         logs={snippetGeneratorLogs ?? []}
       />
 
       <BeeHiivCreateTabStatusRow
-        label="Jobs Saved"
+        label={`${jobCountValue}`}
         success={jobCountValue > 0}
         summary={` - ${
           jobCountValue > 0
-            ? `${jobCountValue} job${jobCountValue === 1 ? "" : "s"} saved in the last ${lookbackHours} hours`
+            ? ` Job${jobCountValue === 1 ? "" : "s"} saved in the last ${lookbackHours} hours`
             : `No jobs saved in the last ${lookbackHours} hours`
         }`}
         logs={jobFetcherLogs ?? []}
       />
 
       <BeeHiivCreateTabStatusRow
-        label="Newsletter Created"
+        label="1"
         success={Boolean(todaysNewsletter)}
         summary={` - ${
           todaysNewsletter
-            ? `Newsletter with ID: ${todaysNewsletter.id} created today at ${formatTime(todaysNewsletter.created_at)}`
+            ? `Newsletter created (id: ${todaysNewsletter.id}).`
             : "No newsletter created today"
         }`}
         logs={createNewsletterLogs ?? []}

@@ -1,18 +1,10 @@
-import { formatMonthDay, truncateText } from "./helpers";
 import type { ArticleRow, SortKey } from "./types";
 
-type ArticlesTableProps = {
+type CurateArticlesTableProps = {
   targetNewsletterTitle: string | null;
   hasTargetNewsletter: boolean;
   selectedArticleIds: number[];
   addSelectedArticlesToNewsletter: () => void;
-  searchTerm: string;
-  setSearchTerm: (value: string) => void;
-  categoryFilter: string;
-  setCategoryFilter: (value: string) => void;
-  categories: string[];
-  sortDirection: "asc" | "desc";
-  setSortDirection: (direction: "asc" | "desc") => void;
   actionError: string | null;
   isLoading: boolean;
   error: string | null;
@@ -25,18 +17,34 @@ type ArticlesTableProps = {
   isArticleInTargetNewsletter: (article: ArticleRow) => boolean;
 };
 
-export default function ArticlesTable({
+function formatMonthDay(value: string | null) {
+  if (!value) {
+    return "—";
+  }
+
+  const date = new Date(value);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${month}/${day}`;
+}
+
+function truncateText(value: string | null, maxLength: number) {
+  if (!value) {
+    return "—";
+  }
+
+  if (value.length <= maxLength) {
+    return value;
+  }
+
+  return `${value.slice(0, maxLength).trimEnd()}…`;
+}
+
+export default function CurateArticlesTable({
   targetNewsletterTitle,
   hasTargetNewsletter,
   selectedArticleIds,
   addSelectedArticlesToNewsletter,
-  searchTerm,
-  setSearchTerm,
-  categoryFilter,
-  setCategoryFilter,
-  categories,
-  sortDirection,
-  setSortDirection,
   actionError,
   isLoading,
   error,
@@ -47,127 +55,82 @@ export default function ArticlesTable({
   addArticleToNewsletter,
   addingArticleIds,
   isArticleInTargetNewsletter,
-}: ArticlesTableProps) {
+}: CurateArticlesTableProps) {
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="app-text-muted text-sm">
-          Target newsletter: {targetNewsletterTitle ?? "None in last 12 hours"}
+
+      {actionError ? (
+        <p className="app-text-danger rounded-lg border border-current/25 px-3 py-2 text-sm">
+          {actionError}
         </p>
-        <button
-          type="button"
-          onClick={addSelectedArticlesToNewsletter}
-          disabled={selectedArticleIds.length === 0 || !hasTargetNewsletter}
-          className="app-btn px-3 py-2 text-xs font-medium disabled:opacity-60"
-        >
-          Add Selected ({selectedArticleIds.length})
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-12">
-        <div className="md:col-span-7">
-          <input
-            type="text"
-            placeholder="Filter by title, publisher, or category"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-            className="app-input"
-          />
-        </div>
-
-        <div className="md:col-span-3">
-          <select
-            value={categoryFilter}
-            onChange={(event) => setCategoryFilter(event.target.value)}
-            className="app-input"
-          >
-            <option value="all">All categories</option>
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="md:col-span-2">
-          <button
-            type="button"
-            onClick={() =>
-              setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-            }
-            className="app-btn-ghost w-full px-3 py-2 text-sm"
-          >
-            Sort: {sortDirection === "asc" ? "Asc" : "Desc"}
-          </button>
-        </div>
-      </div>
-
-      {actionError ? <p className="app-text-danger text-sm">{actionError}</p> : null}
+      ) : null}
 
       <div className="app-kpi overflow-hidden p-0">
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-foreground/15 bg-foreground/5">
+            <thead className="sticky top-0 z-10 border-b border-foreground/15 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/90">
               <tr>
                 <th className="px-4 py-3 font-semibold">
-                  <button type="button" onClick={() => applySort("created_at")}>
+                  <button type="button" onClick={() => applySort("created_at")} className="transition hover:opacity-80">
                     Created
                   </button>
                 </th>
                 <th className="px-4 py-3 font-semibold">
-                  <button type="button" onClick={() => applySort("source")}>
+                  <button type="button" onClick={() => applySort("source")} className="transition hover:opacity-80">
                     Source
                   </button>
                 </th>
                 <th className="px-4 py-3 font-semibold">
-                  <button type="button" onClick={() => applySort("publisher")}>
+                  <button type="button" onClick={() => applySort("publisher")} className="transition hover:opacity-80">
                     Publisher
                   </button>
                 </th>
                 <th className="px-4 py-3 font-semibold">
-                  <button type="button" onClick={() => applySort("category")}>
+                  <button type="button" onClick={() => applySort("category")} className="transition hover:opacity-80">
                     Category
                   </button>
                 </th>
                 <th className="px-4 py-3 font-semibold">Add</th>
                 <th className="px-4 py-3 font-semibold">
-                  <button type="button" onClick={() => applySort("title")}>
+                  <button type="button" onClick={() => applySort("title")} className="transition hover:opacity-80">
                     Title
                   </button>
                 </th>
               </tr>
             </thead>
-
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-6 text-center app-text-muted">
+                  <td colSpan={6} className="px-4 py-10 text-center app-text-muted">
                     Loading articles...
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-6 text-center app-text-danger">
+                  <td colSpan={6} className="px-4 py-10 text-center app-text-danger">
                     {error}
                   </td>
                 </tr>
               ) : visibleArticles.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-6 text-center app-text-muted">
+                  <td colSpan={6} className="px-4 py-10 text-center app-text-muted">
                     No articles found for the current filter.
                   </td>
                 </tr>
               ) : (
                 visibleArticles.map((article) => (
-                  <tr key={article.id} className="border-t border-foreground/10">
-                    <td className="px-4 py-3 app-text-muted">
+                  <tr key={article.id} className="border-t border-foreground/10 align-top transition hover:bg-foreground/2">
+                    <td className="px-4 py-4 app-text-muted">
                       {formatMonthDay(article.created_at)}
                     </td>
-                    <td className="px-4 py-3 app-text-muted">{article.source ?? "—"}</td>
-                    <td className="px-4 py-3 app-text-muted">{article.publisher ?? "—"}</td>
-                    <td className="px-4 py-3 app-text-muted">{article.category ?? "—"}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-4 app-text-muted">{article.source ?? "—"}</td>
+                    <td className="px-4 py-4 app-text-muted">{article.publisher ?? "—"}</td>
+                    <td className="px-4 py-4">
+                      <span className="rounded-md border border-foreground/15 bg-foreground/3 px-2 py-1 text-xs app-text-muted">
+                        {article.category ?? "—"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
                         <input
                           type="checkbox"
@@ -183,7 +146,7 @@ export default function ArticlesTable({
                             isArticleInTargetNewsletter(article) ||
                             addingArticleIds.includes(article.id)
                           }
-                          className="app-btn-ghost px-2 py-1 text-xs disabled:opacity-60"
+                          className="app-btn-ghost px-2 py-1 text-xs font-medium disabled:opacity-60"
                         >
                           {isArticleInTargetNewsletter(article)
                             ? "Added"
@@ -193,13 +156,15 @@ export default function ArticlesTable({
                         </button>
                       </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="space-y-1">
-                        <p className="text-lg font-semibold">
+                    <td className="px-4 py-4">
+                      <div className="space-y-1.5">
+                        <p className="text-base font-semibold leading-tight">
                           {article.title_snippet ?? "—"}
                         </p>
-                        <p className="text-md font-medium">{truncateText(article.title, 80) ?? "Untitled"}</p>
-                        <p className="text-sm app-text-muted">
+                        <p className="text-sm font-medium app-text-muted">
+                          {truncateText(article.title, 80) ?? "Untitled"}
+                        </p>
+                        <p className="text-sm app-text-muted leading-relaxed">
                           {truncateText(article.description, 150)}
                         </p>
                       </div>

@@ -60,12 +60,7 @@ export default async function Home() {
               tasks={tasks}
               errorMessage={tasksErrorMessage}
             />
-            <div className="app-panel p-4">
-              <h3 className="text-md font-semibold">Scheduled Check-Ins</h3>
-              <p className="app-text-muted mt-2 text-sm">
-                Good for quick stats or filters.
-              </p>
-            </div>
+     
 
           </section>
 

@@ -2,9 +2,9 @@ import type { ReactNode } from "react";
 import BeeHiivCurateTab from "@/components/BeeHiiv/BeeHiivCurateTab";
 import BeeHiivDesignTab from "@/components/BeeHiiv/BeeHiivDesignTab";
 import BeeHiivReviewTab from "@/components/BeeHiiv/BeeHiivReviewTab";
+import BeeHiivNewsletterSelectorWithCreate from "@/components/BeeHiiv/BeeHiivNewsletterSelectorWithCreate";
 import DetailTabs from "@/components/BeeHiiv/OperationTabs";
 import OperationLogStatusList from "@/components/BeeHiiv/BeeHiivCreateTab";
-import ContributionHeatMapPlaceholder from "@/components/ContributionHeatMapPlaceholder";
 
 export type NewsletterDropdownDetailGroup = {
   primary: ReactNode;
@@ -28,6 +28,9 @@ export const newsletterDropdownContentById: Record<
       <div className="space-y-3">
         <h4 className="text-sm">Task to Complete:</h4>
         <h4 className="text-lg font-semibold">Publish Newsletter</h4>
+        <div className="flex justify-start">
+          <BeeHiivNewsletterSelectorWithCreate />
+        </div>
 
         <DetailTabs
           overviewContent={<OperationLogStatusList />}

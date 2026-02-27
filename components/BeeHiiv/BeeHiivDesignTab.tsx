@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import BeeHiivLastSyncedBadge from "@/components/BeeHiiv/BeeHiivLastSyncedBadge";
 import BeeHiivDesignModal from "@/components/BeeHiiv/BeeHiivDesignModal";
-import BeeHiivNewsletterSelector from "@/components/BeeHiiv/BeeHiivNewsletterSelector";
 import { useSelectedNewsletterId } from "@/components/BeeHiiv/useSelectedNewsletterId";
 import { createClient } from "@/utils/supabase/client";
 
@@ -137,7 +136,6 @@ export default function BeeHiivDesignTab() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <BeeHiivNewsletterSelector />
           <BeeHiivDesignModal />
         </div>
         <BeeHiivLastSyncedBadge syncedAt={syncedAt} />
