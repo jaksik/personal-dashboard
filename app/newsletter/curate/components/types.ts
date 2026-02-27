@@ -1,5 +1,14 @@
 import type { Database } from "@/utils/supabase/database.types";
 
+export type CurateTab = "articles" | "jobs";
+export type SortKey = "title" | "category" | "publisher" | "created_at" | "source";
+
+export type NewsletterOption = {
+  id: number;
+  title: string | null;
+  created_at: string;
+};
+
 export type ArticleRow = Pick<
   Database["public"]["Tables"]["articles"]["Row"],
   | "id"
@@ -27,6 +36,3 @@ export type JobPostingRow = Pick<
   | "apply_link"
   | "newsletter_id"
 >;
-
-export type SortKey = "title" | "category" | "publisher" | "created_at" | "source";
-export type CurateTab = "articles" | "jobs";

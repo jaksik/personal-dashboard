@@ -2,26 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import BeeHiivCurateModal from "@/components/BeeHiiv/BeeHiivCurateModal";
 import BeeHiivLastSyncedBadge from "@/components/BeeHiiv/BeeHiivLastSyncedBadge";
-import {
-  dispatchNewsletterCreated,
-} from "@/components/BeeHiiv/BeeHiivNewsletterSelector";
-import BeeHiivNewsletterSelector from "@/components/BeeHiiv/BeeHiivNewsletterSelector";
 import { useSelectedNewsletterId } from "@/components/BeeHiiv/useSelectedNewsletterId";
-
-function formatDate(value: string) {
-  const date = new Date(value);
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  const hours24 = date.getHours();
-  const hours12 = hours24 % 12 || 12;
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const meridiem = hours24 >= 12 ? "pm" : "am";
-
-  return `${month}/${day}, ${String(hours12).padStart(2, "0")}:${minutes} ${meridiem}`;
-}
 
 function SuccessIcon() {
   return (
@@ -55,12 +37,6 @@ function PendingIcon() {
   );
 }
 
-type CurateNewsletter = {
-  id: number;
-  title: string | null;
-  created_at: string;
-};
-
 type CategoryCounter = {
   category: string;
   count: number;
@@ -76,12 +52,9 @@ const fixedCategoryBadges = [
 export default function BeeHiivCurateTab() {
   const { selectedNewsletterId } = useSelectedNewsletterId();
   const [syncedAt, setSyncedAt] = useState(new Date());
-  const [newsletter, setNewsletter] = useState<CurateNewsletter | null>(null);
   const [articleCount, setArticleCount] = useState(0);
   const [jobCount, setJobCount] = useState(0);
   const [categoryCounters, setCategoryCounters] = useState<CategoryCounter[]>([]);
-  const [isCreatingNewsletter, setIsCreatingNewsletter] = useState(false);
-  const [createNewsletterError, setCreateNewsletterError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadCurateSummary() {
@@ -102,8 +75,6 @@ export default function BeeHiivCurateTab() {
 
       const { data: newsletters } = await newsletterQuery;
       const selectedNewsletter = newsletters?.[0] ?? null;
-
-      setNewsletter(selectedNewsletter);
 
       if (!selectedNewsletter) {
         setArticleCount(0);
@@ -161,83 +132,29 @@ export default function BeeHiivCurateTab() {
     loadCurateSummary();
   }, [selectedNewsletterId]);
 
-  const referenceDate = newsletter?.created_at ? formatDate(newsletter.created_at) : "Pending";
-  const referenceName = newsletter?.title ?? "No newsletter";
-
-  async function createNewsletter() {
-    setIsCreatingNewsletter(true);
-    setCreateNewsletterError(null);
-
-    const supabase = createClient();
-    const { data: createdNewsletter, error } = await supabase
-      .from("newsletters")
-      .insert({})
-      .select("id, title, created_at")
-      .single();
-
-    if (error) {
-      setCreateNewsletterError(error.message);
-      setIsCreatingNewsletter(false);
-      return;
-    }
-
-    if (createdNewsletter) {
-      dispatchNewsletterCreated(createdNewsletter);
-    }
-
-    setSyncedAt(new Date());
-    setIsCreatingNewsletter(false);
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <BeeHiivNewsletterSelector />
-          <BeeHiivCurateModal />
-          <button
-            type="button"
-            className="app-btn-ghost h-10 w-10 text-lg font-semibold leading-none"
-            onClick={createNewsletter}
-            disabled={isCreatingNewsletter}
-            aria-label="Create newsletter"
-            title="Create newsletter"
-          >
-            +
-          </button>
+ 
         </div>
         <BeeHiivLastSyncedBadge syncedAt={syncedAt} />
       </div>
-      {createNewsletterError ? (
-        <p className="app-text-danger text-sm">{createNewsletterError}</p>
-      ) : null}
-      <div className="flex items-center gap-3">
+      <div className="flex items-start gap-3">
         {articleCount > 0 ? <SuccessIcon /> : <PendingIcon />}
         <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-semibold sm:text-base">Curate Articles</span>
+          <div className="space-y-2">
+            <span className="font-semibold sm:text-base">11 Articles selected for Newsletter with id:17</span>
             {articleCount === 0 ? (
               <span className="text-sm">No articles associated with the selected newsletter.</span>
             ) : (
-              categoryCounters.map((counter) => {
-                const color =
-                  fixedCategoryBadges.find((badge) => badge.category === counter.category)?.color ??
-                  "var(--chart-1)";
-
-                return (
-                  <span
-                    key={counter.category}
-                    className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold"
-                    style={{
-                      color,
-                      borderColor: `color-mix(in srgb, ${color} 45%, transparent)`,
-                      backgroundColor: `color-mix(in srgb, ${color} 12%, transparent)`,
-                    }}
-                  >
+              <ul className="app-text-muted list-disc space-y-1 pl-5 text-sm">
+                {categoryCounters.map((counter) => (
+                  <li key={counter.category}>
                     {counter.category}: {counter.count}
-                  </span>
-                );
-              })
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
         </div>
@@ -246,17 +163,7 @@ export default function BeeHiivCurateTab() {
       <div className="flex items-center gap-3">
         {jobCount > 0 ? <SuccessIcon /> : <PendingIcon />}
         <div className="flex flex-wrap items-center gap-2">
-          <span className="font-semibold sm:text-base">Curate Jobs</span>
-          <span
-            className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold"
-            style={{
-              color: "var(--chart-4)",
-              borderColor: "color-mix(in srgb, var(--chart-4) 45%, transparent)",
-              backgroundColor: "color-mix(in srgb, var(--chart-4) 12%, transparent)",
-            }}
-          >
-            Job Postings: {jobCount}
-          </span>
+          <span className="font-semibold sm:text-base">8 Job Postings selected for Newsletter with id:17</span>
         </div>
       </div>
     </div>
