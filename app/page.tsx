@@ -2,13 +2,13 @@ import { redirect } from "next/navigation";
 import { newsletterDropdownContentById } from "@/components/NewsletterDropdownDetails";
 import { createClient } from "@/utils/supabase/server";
 import NewsletterDropdown from "@/components/NewsletterDropdown";
-import ThemeToggle from "@/components/ThemeToggle";
+import ThemeToggle from "@/components/dashboard/ThemeToggle";
 import { newsletterDropdowns } from "@/data/newsletter-dropdowns";
-import PlaceholderGraph from "@/components/PlaceholderGraph";
-import DottedWorldMap from "@/components/DottedWorldMap";
-import ContributionHeatMapPlaceholder from "@/components/ContributionHeatMapPlaceholder";
-import WorldClockRow from "@/components/WorldClockRow";
-import SystemTasksTable from "@/components/SystemTasksTable";
+import PlaceholderGraph from "@/components/dashboard/PlaceholderGraph";
+import DottedWorldMap from "@/components/dashboard/DottedWorldMap";
+import ContributionHeatMapPlaceholder from "@/components/dashboard/ContributionHeatMap";
+import WorldClockRow from "@/components/dashboard/WorldClockRow";
+import SystemTasksTable from "@/components/dashboard/SystemTasksTable";
 
 
 export default async function Home() {

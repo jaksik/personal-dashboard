@@ -271,7 +271,15 @@ export default function CurateWorkspace({
         <section className="w-full">
             <div className="sticky top-0 z-20 bg-background/95 px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/85 md:px-5 md:py-4">
                 <div className="flex items-center justify-between gap-3">
-                    <div className="shrink-0">{leftHeaderActions}</div>
+                    <div className="flex min-w-0 items-center gap-3">
+                        <div className="shrink-0">{leftHeaderActions}</div>
+                        <div className="w-full max-w-sm min-w-55">
+                            <CurateNewsletterSelect
+                                value={selectedNewsletterId}
+                                onChange={setSelectedNewsletterId}
+                            />
+                        </div>
+                    </div>
                     <div>
                         <p className="app-text-muted hidden text-xs uppercase tracking-[0.14em] lg:block mb-5">
                             Curate Newsletter Content
@@ -280,19 +288,6 @@ export default function CurateWorkspace({
 
                     </div>
                     <div className="shrink-0">{rightHeaderActions}</div>
-                </div>
-
-                <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:items-center">
-
-                    <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-foreground/15 bg-foreground/2 px-3 py-2.5">
-                        <p className="app-text-muted text-xs uppercase tracking-[0.14em]">Active Newsletter</p>
-                        <div className="w-full max-w-md">
-                            <CurateNewsletterSelect
-                                value={selectedNewsletterId}
-                                onChange={setSelectedNewsletterId}
-                            />
-                        </div>
-                    </div>
                 </div>
 
                 <div className="mt-3 rounded-xl border border-foreground/15 bg-foreground/2 p-3">
