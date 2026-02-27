@@ -5,30 +5,72 @@ import BeeHiivReviewTab from "@/components/BeeHiiv/TaskTabs/BeeHiivReviewTab";
 import BeeHiivNewsletterSelectorWithCreate from "./BeeHiiv/BeeHiivNewsletterSelectorWithCreate";
 import DetailTabs from "@/components/BeeHiiv/TaskTabs";
 import OperationLogStatusList from "@/components/BeeHiiv/TaskTabs/BeeHiivCreateTab";
+import SystemTasksTable from "@/components/dashboard/SystemTasksTable";
+import type { Tables } from "@/utils/supabase/database.types";
+
+type SystemTaskRow = Tables<{ schema: "system" }, "tasks">;
 
 export type NewsletterDropdownDetailGroup = {
   primary: ReactNode;
   secondary?: ReactNode;
 };
 
-export const newsletterDropdownContentById: Record<
-  string,
-  NewsletterDropdownDetailGroup
-> = {
+type DropdownContentOptions = {
+  tasks?: SystemTaskRow[];
+  tasksErrorMessage?: string | null;
+};
+
+export function getNewsletterDropdownContentById({
+  tasks = [],
+  tasksErrorMessage = null,
+}: DropdownContentOptions = {}): Record<string, NewsletterDropdownDetailGroup> {
+  const beehiivTasks = tasks.filter(
+    (task) => task.component_name === "BeeHiiv Newsletter",
+  );
+
+  return {
   "ai-entrepreneur": {
     primary: (
-      <div className="space-y-2">
-        <h4 className="text-sm font-semibold">AI Entrepreneur Notes</h4>
-        <p className="app-text-muted text-sm">
-          Reserve this section for secondary workflows, backlog items, or a deeper metrics view.
-        </p>        
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <SystemTasksTable
+          tasks={beehiivTasks}
+          errorMessage={tasksErrorMessage}
+        />
+
+        <div className="app-panel p-4">
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-semibold">Performance Metrics</h4>
+            <span className="app-text-muted text-xs">Placeholder</span>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="rounded-md border border-foreground/15 p-3">
+              <p className="app-text-muted text-xs">Open Rate</p>
+              <p className="mt-1 text-lg font-semibold">--%</p>
+            </div>
+            <div className="rounded-md border border-foreground/15 p-3">
+              <p className="app-text-muted text-xs">Click Rate</p>
+              <p className="mt-1 text-lg font-semibold">--%</p>
+            </div>
+            <div className="rounded-md border border-foreground/15 p-3">
+              <p className="app-text-muted text-xs">Subscribers</p>
+              <p className="mt-1 text-lg font-semibold">----</p>
+            </div>
+            <div className="rounded-md border border-foreground/15 p-3">
+              <p className="app-text-muted text-xs">Revenue</p>
+              <p className="mt-1 text-lg font-semibold">$----</p>
+            </div>
+          </div>
+        </div>
       </div>
     ),
     secondary: (
       <div className="space-y-3">
-        <h4 className="app-text-muted text-sm">Task to Complete:</h4>
-        <h4 className="text-lg font-semibold">Publish Newsletter on 2/27 by 9am</h4>
-        <div className="flex justify-end">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h4 className="app-text-muted text-sm">Task to Complete:</h4>
+            <h4 className="text-lg font-semibold">Publish Newsletter on 2/27 by 9am</h4>
+          </div>
           <BeeHiivNewsletterSelectorWithCreate />
         </div>
 
@@ -80,4 +122,5 @@ export const newsletterDropdownContentById: Record<
       </div>
     ),
   },
-};
+  };
+}

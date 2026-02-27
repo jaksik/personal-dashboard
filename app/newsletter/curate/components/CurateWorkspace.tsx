@@ -13,8 +13,10 @@ import {
 import CurateArticlesTable from "./CurateArticlesTable";
 import CurateFilters from "./CurateFilters";
 import CurateJobsTable from "./CurateJobsTable";
-import CurateNewsletterSelect from "./CurateNewsletterSelect";
 import CurateTabs from "./CurateTabs";
+import NewsletterPageNav from "@/components/newsletter/NewsletterPageNav";
+import NewsletterSelect from "@/components/newsletter/NewsletterSelect";
+import useSelectedNewsletterId from "@/components/newsletter/useSelectedNewsletterId";
 import type {
     ArticleNewsletterFilter,
     ArticleRow,
@@ -25,17 +27,15 @@ import type {
 } from "./types";
 
 type CurateWorkspaceProps = {
-    leftHeaderActions: ReactNode;
     rightHeaderActions: ReactNode;
 };
 
 export default function CurateWorkspace({
-    leftHeaderActions,
     rightHeaderActions,
 }: CurateWorkspaceProps) {
     const headerRef = useRef<HTMLDivElement | null>(null);
     const [headerHeight, setHeaderHeight] = useState(208);
-    const [selectedNewsletterId, setSelectedNewsletterId] = useState<number | null>(null);
+    const { selectedNewsletterId, setSelectedNewsletterId } = useSelectedNewsletterId();
     const [activeTab, setActiveTab] = useState<CurateTab>("articles");
     const [isFiltersPanelOpen, setIsFiltersPanelOpen] = useState(false);
 
@@ -780,13 +780,12 @@ export default function CurateWorkspace({
             >
                 <div className="mx-auto w-full">
                     <div className="border border-foreground/15 bg-foreground/2 px-2">
-                        <div className="my-2 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-1">
-                            <div className="shrink-0 justify-self-start">{leftHeaderActions}</div>
-
-                            <div className="mx-auto w-full max-w-6xl">
+                        <NewsletterPageNav
+                            rightActions={rightHeaderActions}
+                            centerContent={
                                 <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
                                     <div className="justify-self-start w-full max-w-sm md:w-72 md:max-w-none">
-                                        <CurateNewsletterSelect
+                                        <NewsletterSelect
                                             value={selectedNewsletterId}
                                             onChange={setSelectedNewsletterId}
                                         />
@@ -806,10 +805,8 @@ export default function CurateWorkspace({
                                         </button>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div className="shrink-0 justify-self-end">{rightHeaderActions}</div>
-                        </div>
+                            }
+                        />
 
                         <div className="mt-3 border-t max-w-6xl mx-auto border-foreground/15 py-3">
                             {isFiltersPanelOpen ? (

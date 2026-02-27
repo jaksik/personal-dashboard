@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import BeeHiivLastSyncedBadge from "@/components/BeeHiiv/BeeHiivLastSyncedBadge";
 import { useSelectedNewsletterId } from "@/components/BeeHiiv/useSelectedNewsletterId";
@@ -55,6 +56,7 @@ export default function BeeHiivCurateTab() {
   const [articleCount, setArticleCount] = useState(0);
   const [jobCount, setJobCount] = useState(0);
   const [categoryCounters, setCategoryCounters] = useState<CategoryCounter[]>([]);
+  const [activeNewsletterId, setActiveNewsletterId] = useState<number | null>(null);
 
   useEffect(() => {
     async function loadCurateSummary() {
@@ -80,9 +82,12 @@ export default function BeeHiivCurateTab() {
         setArticleCount(0);
         setJobCount(0);
         setCategoryCounters([]);
+        setActiveNewsletterId(null);
         setSyncedAt(new Date());
         return;
       }
+
+      setActiveNewsletterId(selectedNewsletter.id);
 
       const [
         { count: articles },
@@ -136,7 +141,12 @@ export default function BeeHiivCurateTab() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
- 
+          <Link
+            href="/newsletter/curate"
+            className="app-btn-ghost inline-flex items-center px-3 py-1.5 text-xs font-medium"
+          >
+            Curate Workspace
+          </Link>
         </div>
         <BeeHiivLastSyncedBadge syncedAt={syncedAt} />
       </div>
@@ -144,9 +154,16 @@ export default function BeeHiivCurateTab() {
         {articleCount > 0 ? <SuccessIcon /> : <PendingIcon />}
         <div className="space-y-2">
           <div className="space-y-2">
-            <span className="font-semibold sm:text-base">11 Articles selected for Newsletter with id:17</span>
+            <p className="font-medium sm:text-base">
+              <span className="font-semibold">{articleCount}</span>{" "}
+              <span className="text-md">- Articles Selected</span>
+            </p>
             {articleCount === 0 ? (
-              <span className="text-sm">No articles associated with the selected newsletter.</span>
+              <span className="text-sm">
+                {activeNewsletterId == null
+                  ? "No newsletter selected for this time window."
+                  : "No articles associated with the selected newsletter."}
+              </span>
             ) : (
               <ul className="app-text-muted list-disc space-y-1 pl-5 text-sm">
                 {categoryCounters.map((counter) => (
@@ -163,7 +180,10 @@ export default function BeeHiivCurateTab() {
       <div className="flex items-center gap-3">
         {jobCount > 0 ? <SuccessIcon /> : <PendingIcon />}
         <div className="flex flex-wrap items-center gap-2">
-          <span className="font-semibold sm:text-base">8 Job Postings selected for Newsletter with id:17</span>
+          <p className="font-medium sm:text-base">
+            <span className="font-semibold">{jobCount}</span>{" "}
+            <span className="text-md">- Jobs Selected</span>
+          </p>
         </div>
       </div>
     </div>

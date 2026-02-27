@@ -1,5 +1,4 @@
-import Link from "next/link";
-import CurateThemeToggle from "./components/CurateThemeToggle";
+import ThemeToggle from "@/components/dashboard/ThemeToggle";
 import CurateWorkspace from "./components/CurateWorkspace";
 import { requireCurateUser, signOutCurateAction } from "./actions";
 
@@ -11,14 +10,9 @@ export default async function NewsletterCuratePage() {
       <main className="w-full px-3 py-3 md:px-5 md:py-5">
         <section className="w-full">
           <CurateWorkspace
-            leftHeaderActions={
-              <Link href="/" className="app-btn-ghost px-4 py-2 text-sm font-medium">
-                Back to dashboard
-              </Link>
-            }
             rightHeaderActions={
               <div className="flex items-center gap-2">
-                <CurateThemeToggle />
+                <ThemeToggle />
                 <form action={signOutCurateAction}>
                   <button type="submit" className="app-btn-ghost px-4 py-2 text-sm font-medium">
                     Sign out
