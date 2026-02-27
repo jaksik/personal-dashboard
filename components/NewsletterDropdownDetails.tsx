@@ -26,9 +26,9 @@ export const newsletterDropdownContentById: Record<
     ),
     secondary: (
       <div className="space-y-3">
-        <h4 className="text-sm">Task to Complete:</h4>
-        <h4 className="text-lg font-semibold">Publish Newsletter</h4>
-        <div className="flex justify-start">
+        <h4 className="app-text-muted text-sm">Task to Complete:</h4>
+        <h4 className="text-lg font-semibold">Publish Newsletter on 2/27 by 9am</h4>
+        <div className="flex justify-end">
           <BeeHiivNewsletterSelectorWithCreate />
         </div>
 

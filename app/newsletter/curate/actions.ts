@@ -120,6 +120,46 @@ export async function addArticleToNewsletterAction(
   return { articleId, newsletterId };
 }
 
+export async function updateArticleCategoryAction(
+  articleId: number,
+  category: string | null
+) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("articles")
+    .update({ category })
+    .eq("id", articleId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return { articleId, category };
+}
+
+export async function updateArticleDocumentAction(
+  articleId: number,
+  updates: {
+    title_snippet: string | null;
+    title: string | null;
+    description: string | null;
+    publisher: string | null;
+    source: string | null;
+  }
+) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("articles")
+    .update(updates)
+    .eq("id", articleId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return { articleId, updates };
+}
+
 export async function addSelectedArticlesToNewsletterAction(
   newsletterId: number,
   articleIds: number[]
@@ -153,4 +193,29 @@ export async function addJobToNewsletterAction(newsletterId: number, jobId: numb
   }
 
   return { jobId, newsletterId };
+}
+
+export async function updateJobDocumentAction(
+  jobId: number,
+  updates: {
+    title: string | null;
+    description: string | null;
+    company: string | null;
+    location: string | null;
+    remote: boolean | null;
+    posted_date: string | null;
+    apply_link: string | null;
+  }
+) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("job_postings")
+    .update(updates)
+    .eq("id", jobId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return { jobId, updates };
 }

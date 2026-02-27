@@ -1,7 +1,17 @@
 import type { Database } from "@/utils/supabase/database.types";
 
 export type CurateTab = "articles" | "jobs";
-export type SortKey = "title" | "category" | "publisher" | "created_at" | "source";
+export type SortKey =
+  | "title"
+  | "category"
+  | "publisher"
+  | "created_at"
+  | "published_at"
+  | "source";
+
+export type JobSortKey = "title" | "company" | "location" | "remote" | "created_at" | "posted_date";
+
+export type ArticleNewsletterFilter = "all" | "unassigned" | "assigned" | "target" | "other";
 
 export type NewsletterOption = {
   id: number;
