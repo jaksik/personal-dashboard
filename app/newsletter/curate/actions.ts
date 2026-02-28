@@ -120,6 +120,20 @@ export async function addArticleToNewsletterAction(
   return { articleId, newsletterId };
 }
 
+export async function removeArticleFromNewsletterAction(articleId: number) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("articles")
+    .update({ newsletter_id: null })
+    .eq("id", articleId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return { articleId, newsletterId: null };
+}
+
 export async function updateArticleCategoryAction(
   articleId: number,
   category: string | null

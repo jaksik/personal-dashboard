@@ -152,6 +152,103 @@ body {
   border-radius: 0.5rem;
 }
 
+.app-neon-badge {
+  --neon-color: #22d3ee;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--neon-color) 70%, transparent);
+  background: color-mix(in srgb, var(--neon-color) 14%, var(--app-surface));
+  color: color-mix(in srgb, var(--neon-color) 58%, var(--app-text));
+}
+
+.app-neon-badge:hover {
+  background: color-mix(in srgb, var(--neon-color) 20%, var(--app-surface));
+}
+
+.app-neon-badge:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--neon-color) 35%, transparent);
+}
+
+.app-neon-pill {
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--neon-color) 22%, var(--app-surface));
+  color: color-mix(in srgb, var(--neon-color) 48%, var(--app-text));
+}
+
+.app-neon-cyan {
+  --neon-color: #22d3ee;
+}
+
+.app-neon-fuchsia {
+  --neon-color: #e879f9;
+}
+
+.app-neon-sky {
+  --neon-color: #38bdf8;
+}
+
+.app-neon-amber {
+  --neon-color: #f59e0b;
+}
+
+.app-neon-badge.app-cover-current-btn {
+  border-color: #22c55e;
+  background: #dcfce7;
+  color: #14532d;
+}
+
+.app-neon-badge.app-cover-current-btn:hover {
+  background: #bbf7d0;
+}
+
+.app-newsletter-assigned-btn {
+  border-radius: 9999px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #4ade80;
+  background: #14532d;
+  color: #86efac;
+}
+
+.app-newsletter-assigned-btn:hover {
+  background: #166534;
+}
+
+:root[data-theme="dark"] .app-neon-badge {
+  border-color: color-mix(in srgb, var(--neon-color) 78%, transparent);
+  background: color-mix(in srgb, var(--neon-color) 16%, transparent);
+  color: color-mix(in srgb, var(--neon-color) 82%, white);
+}
+
+:root[data-theme="dark"] .app-neon-badge:hover {
+  background: color-mix(in srgb, var(--neon-color) 22%, transparent);
+}
+
+:root[data-theme="dark"] .app-neon-pill {
+  background: color-mix(in srgb, var(--neon-color) 26%, transparent);
+  color: color-mix(in srgb, var(--neon-color) 90%, white);
+}
+
+:root[data-theme="dark"] .app-neon-badge.app-cover-current-btn {
+  border-color: #86efac;
+  background: #86efac;
+  color: #052e16;
+}
+
+:root[data-theme="dark"] .app-neon-badge.app-cover-current-btn:hover {
+  background: #bbf7d0;
+}
+
+:root[data-theme="dark"] .app-newsletter-assigned-btn {
+  border-color: #4ade80;
+  background: #14532d;
+  color: #86efac;
+}
+
+:root[data-theme="dark"] .app-newsletter-assigned-btn:hover {
+  background: #166534;
+}
+
 .app-input {
   width: 100%;
   border: 1px solid var(--app-border-strong);
@@ -164,6 +261,23 @@ body {
 
 .app-input:focus {
   box-shadow: 0 0 0 2px var(--app-focus);
+}
+
+.app-input-neon {
+  --neon-color: #22d3ee;
+  border-color: color-mix(in srgb, var(--neon-color) 65%, var(--app-border-strong));
+  background: color-mix(in srgb, var(--neon-color) 12%, var(--app-surface));
+  color: color-mix(in srgb, var(--neon-color) 48%, var(--app-text));
+}
+
+.app-input-neon:focus {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--neon-color) 28%, transparent);
+}
+
+:root[data-theme="dark"] .app-input-neon {
+  border-color: color-mix(in srgb, var(--neon-color) 75%, var(--app-border-strong));
+  background: color-mix(in srgb, var(--neon-color) 14%, var(--app-surface));
+  color: color-mix(in srgb, var(--neon-color) 82%, white);
 }
 
 .app-chart-frame {

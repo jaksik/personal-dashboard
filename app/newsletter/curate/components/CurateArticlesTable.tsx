@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { ArticleRow, SortKey } from "./types";
 
 type CurateArticlesTableProps = {
@@ -8,6 +8,8 @@ type CurateArticlesTableProps = {
   error: string | null;
   visibleArticles: ArticleRow[];
   categoryOptions: string[];
+  categoryToneByName: Record<string, string>;
+  categoryNeonColorByName: Record<string, string>;
   updateArticleCategory: (articleId: number, nextCategory: string | null) => void;
   updatingCategoryArticleIds: number[];
   updateArticleDocument: (
@@ -27,7 +29,6 @@ type CurateArticlesTableProps = {
   applySort: (nextKey: SortKey) => void;
   addArticleToNewsletter: (articleId: number) => void;
   addingArticleIds: number[];
-  isArticleInTargetNewsletter: (article: ArticleRow) => boolean;
 };
 
 function formatMonthDay(value: string | null) {
@@ -68,6 +69,8 @@ export default function CurateArticlesTable({
   error,
   visibleArticles,
   categoryOptions,
+  categoryToneByName,
+  categoryNeonColorByName,
   updateArticleCategory,
   updatingCategoryArticleIds,
   updateArticleDocument,
@@ -78,7 +81,6 @@ export default function CurateArticlesTable({
   applySort,
   addArticleToNewsletter,
   addingArticleIds,
-  isArticleInTargetNewsletter,
 }: CurateArticlesTableProps) {
   const rowRefs = useRef<Record<number, HTMLTableRowElement | null>>({});
   const [editingArticleId, setEditingArticleId] = useState<number | null>(null);
@@ -137,7 +139,7 @@ export default function CurateArticlesTable({
           <table className="min-w-full text-left text-sm">
             <thead className="sticky top-0 z-10 border-b border-foreground/15 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/90">
               <tr>
-                <th className="px-4 py-3 font-semibold">
+                <th className="w-18 px-2 py-3 font-semibold whitespace-nowrap">
                   <button type="button" onClick={() => applySort("created_at")} className="relative pr-3 transition hover:opacity-80">
                     Created
                     <span className="absolute right-0 top-1/2 -translate-y-1/2" aria-hidden>
@@ -145,27 +147,11 @@ export default function CurateArticlesTable({
                     </span>
                   </button>
                 </th>
-                <th className="px-4 py-3 font-semibold">
-                  <button type="button" onClick={() => applySort("published_at")} className="relative pr-3 transition hover:opacity-80">
-                    Published
-                    <span className="absolute right-0 top-1/2 -translate-y-1/2" aria-hidden>
-                      {sortIndicator("published_at", sortKey, sortDirection)}
-                    </span>
-                  </button>
-                </th>
-                <th className="px-4 py-3 font-semibold">
+                <th className="w-24 px-2 py-3 font-semibold whitespace-nowrap">
                   <button type="button" onClick={() => applySort("source")} className="relative pr-3 transition hover:opacity-80">
                     Source
                     <span className="absolute right-0 top-1/2 -translate-y-1/2" aria-hidden>
                       {sortIndicator("source", sortKey, sortDirection)}
-                    </span>
-                  </button>
-                </th>
-                <th className="px-4 py-3 font-semibold">
-                  <button type="button" onClick={() => applySort("publisher")} className="relative pr-3 transition hover:opacity-80">
-                    Publisher
-                    <span className="absolute right-0 top-1/2 -translate-y-1/2" aria-hidden>
-                      {sortIndicator("publisher", sortKey, sortDirection)}
                     </span>
                   </button>
                 </th>
@@ -177,7 +163,7 @@ export default function CurateArticlesTable({
                     </span>
                   </button>
                 </th>
-                <th className="px-4 py-3 font-semibold">Add</th>
+                <th className="font-semibold"></th>
                 <th className="px-4 py-3 font-semibold">
                   <button type="button" onClick={() => applySort("title")} className="relative pr-3 transition hover:opacity-80">
                     Title
@@ -192,19 +178,19 @@ export default function CurateArticlesTable({
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-10 text-center app-text-muted">
+                  <td colSpan={6} className="px-4 py-10 text-center app-text-muted">
                     Loading articles...
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-10 text-center app-text-danger">
+                  <td colSpan={6} className="px-4 py-10 text-center app-text-danger">
                     {error}
                   </td>
                 </tr>
               ) : visibleArticles.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-10 text-center app-text-muted">
+                  <td colSpan={6} className="px-4 py-10 text-center app-text-muted">
                     No articles found for the current filter.
                   </td>
                 </tr>
@@ -218,17 +204,15 @@ export default function CurateArticlesTable({
                     tabIndex={-1}
                     className="border-t border-foreground/10 align-top transition hover:bg-foreground/2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
                   >
-                    <td className="px-4 py-4 app-text-muted">
+                    <td className="px-2 py-4 app-text-muted whitespace-nowrap">
                       {formatMonthDay(article.created_at)}
                     </td>
-                    <td className="px-4 py-4 app-text-muted">
-                      {formatMonthDay(article.published_at)}
+                    <td className="px-2 py-4 app-text-muted">
+                      <span className="block max-w-24 truncate">{article.source ?? "—"}</span>
                     </td>
-                    <td className="px-4 py-4 app-text-muted">{article.source ?? "—"}</td>
-                    <td className="px-4 py-4 app-text-muted">{article.publisher ?? "—"}</td>
                     <td className="px-4 py-4">
                       <select
-                        value={article.category ?? ""}
+                        value={article.category?.trim() ?? ""}
                         onChange={(event) =>
                           updateArticleCategory(
                             article.id,
@@ -236,7 +220,14 @@ export default function CurateArticlesTable({
                           )
                         }
                         disabled={updatingCategoryArticleIds.includes(article.id)}
-                        className="app-input h-8 min-w-32 text-xs disabled:opacity-60"
+                        className={`app-input app-input-neon h-8 min-w-32 text-xs disabled:opacity-60 ${
+                          categoryToneByName[article.category?.trim() || "Uncategorized"] ?? ""
+                        }`}
+                        style={{
+                          "--neon-color":
+                            categoryNeonColorByName[article.category?.trim() || "Uncategorized"] ??
+                            "#9ca3af",
+                        } as CSSProperties}
                         aria-label={`Set category for article ${article.id}`}
                       >
                         <option value="">—</option>
@@ -247,19 +238,36 @@ export default function CurateArticlesTable({
                         ))}
                       </select>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="py-4">
+                      {(() => {
+                        const isAssociated = article.newsletter_id !== null;
+
+                        return (
                       <button
                         type="button"
                         onClick={() => addArticleToNewsletter(article.id)}
                         disabled={
-                          !hasTargetNewsletter ||
-                          isArticleInTargetNewsletter(article) ||
+                          (!hasTargetNewsletter && article.newsletter_id === null) ||
                           addingArticleIds.includes(article.id)
                         }
-                        className="app-btn-ghost px-2 py-1 text-xs font-medium disabled:opacity-60"
+                        className={`inline-flex h-8 w-8 items-center justify-center rounded-md p-0 text-xl font-medium disabled:opacity-60 ${
+                          isAssociated ? "app-neon-badge" : "app-btn-ghost"
+                        }`}
+                        style={
+                          isAssociated
+                            ? ({ "--neon-color": "#4ade80" } as CSSProperties)
+                            : undefined
+                        }
+                        aria-label={
+                          isAssociated
+                            ? `Remove article ${article.id} from newsletter`
+                            : `Add article ${article.id} to newsletter`
+                        }
                       >
-                        +
+                        {isAssociated ? "-" : "+"}
                       </button>
+                        );
+                      })()}
                     </td>
                     <td className="px-4 py-4">
                       {editingArticleId === article.id ? (
@@ -327,13 +335,14 @@ export default function CurateArticlesTable({
                         </div>
                       ) : (
                         <div className="space-y-1.5">
-                          <p className="text-base font-semibold leading-tight">
+                          <p className="text-2xls font-semibold leading-tight">
                             {article.title_snippet ?? "—"}
                           </p>
-                          <p className="text-sm font-medium app-text-muted">
+                          <p className="text-sm font-medium">
                             {truncateText(article.title, 80) ?? "Untitled"}
                           </p>
-                          <p className="text-sm app-text-muted leading-relaxed">
+                          <p className="text-xs font-semibold app-text-muted">{article.publisher ?? "—"}</p>
+                          <p className="text-md app-text-muted leading-relaxed">
                             {truncateText(article.description, 150)}
                           </p>
                         </div>
