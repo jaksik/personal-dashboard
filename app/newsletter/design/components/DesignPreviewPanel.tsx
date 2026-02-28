@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import Image from "next/image";
 import type { DesignContextArticle } from "../actions";
 
 type DesignPreviewPanelProps = {
@@ -39,9 +40,11 @@ export default function DesignPreviewPanel({
       </div>
 
       {coverImage ? (
-        <img
+        <Image
           src={coverImage}
           alt="Newsletter cover preview"
+          width={1200}
+          height={560}
           className="h-70 w-full rounded-md object-cover"
         />
       ) : (

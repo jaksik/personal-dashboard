@@ -8,9 +8,9 @@ import {
   type PublishContextJob,
   type PublishContextNewsletter,
 } from "../actions";
-import { buildPublishPayloads } from "./payload/publishPayloadBuilder";
-import PublishCopyButton from "./PublishCopyButton";
-import PublishPreviewPanel from "./PublishPreviewPanel";
+import { buildPublishPayloads } from "@/app/newsletter/publish/components/payload/publishPayloadBuilder";
+import PublishCopyButton from "@/app/newsletter/publish/components/PublishCopyButton";
+import PublishPreviewPanel from "@/app/newsletter/publish/components/PublishPreviewPanel";
 
 export default function PublishWorkspace() {
   const { selectedNewsletterId } = useSelectedNewsletterId();
@@ -80,7 +80,7 @@ export default function PublishWorkspace() {
               <p className="app-text-muted text-[11px] font-semibold uppercase tracking-[0.08em]">
                 HTML Payload
               </p>
-              <pre className="mt-3 max-h-136 overflow-auto whitespace-pre-wrap break-words text-xs app-text-muted">
+              <pre className="mt-3 max-h-136 overflow-auto whitespace-pre-wrap wrap-break-word text-xs app-text-muted">
                 {htmlPayload}
               </pre>
             </div>

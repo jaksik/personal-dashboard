@@ -3,7 +3,11 @@ import type {
   PublishContextJob,
   PublishContextNewsletter,
 } from "../../actions";
-import { publishPayloadConfig, type PublishPayloadConfig, type PublishPayloadSection } from "./publishPayloadConfig";
+import {
+  publishPayloadConfig,
+  type PublishPayloadConfig,
+  type PublishPayloadSection,
+} from "@/app/newsletter/publish/components/payload/publishPayloadConfig";
 import {
   getArticleDisplayDescription,
   getCategoryHeaderLabel,
@@ -12,10 +16,10 @@ import {
   getJobDisplayTitle,
   groupArticlesByCategory,
   toSafeHttpUrl,
-} from "./publishPayloadUtils";
+} from "@/app/newsletter/publish/components/payload/publishPayloadUtils";
 
 export function getPublishHtmlSectionOrder(config: PublishPayloadConfig) {
-  const order = config.sectionOrder.html;
+  const order: PublishPayloadSection[] = config.sectionOrder.html;
 
   return {
     order,
@@ -34,6 +38,7 @@ function buildHtmlSections(
   config: PublishPayloadConfig
 ) {
   const { order } = getPublishHtmlSectionOrder(config);
+  const typedOrder: PublishPayloadSection[] = order;
   const groupedArticles = groupArticlesByCategory(articles, config);
 
   const title = escapeHtml(newsletter.title ?? config.labels.newsletterTitleFallback);
@@ -114,7 +119,7 @@ function buildHtmlSections(
     aiJobs: inlineJobsAfterCategory ? "" : jobsSectionHtml,
   };
 
-  return order
+  return typedOrder
     .map((sectionId) => sections[sectionId])
     .filter(Boolean)
     .join("\n  ");
@@ -185,7 +190,9 @@ function buildPlainTextSections(
     sections.categories = [...sections.categories, ...aiJobsLines];
   }
 
-  return config.sectionOrder.plainText
+  const plainTextOrder: PublishPayloadSection[] = config.sectionOrder.plainText;
+
+  return plainTextOrder
     .flatMap((sectionId) => {
       const lines = sections[sectionId];
       return lines.length > 0 ? [...lines, ""] : [];

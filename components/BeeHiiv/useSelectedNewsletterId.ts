@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 const SELECTED_NEWSLETTER_STORAGE_KEY = "beehiiv:selected-newsletter-id";
 const SELECTED_NEWSLETTER_EVENT = "beehiiv:selected-newsletter-id:changed";
@@ -23,37 +23,32 @@ export function getSelectedNewsletterEventName() {
 }
 
 export function useSelectedNewsletterId() {
-  const [selectedNewsletterId, setSelectedNewsletterId] = useState<number | null>(null);
+  const selectedNewsletterId = useSyncExternalStore(
+    (onStoreChange) => {
+      function handleStorage(event: StorageEvent) {
+        if (event.key !== SELECTED_NEWSLETTER_STORAGE_KEY) {
+          return;
+        }
 
-  useEffect(() => {
-    const nextId = parseSelectedNewsletterId(
-      window.localStorage.getItem(SELECTED_NEWSLETTER_STORAGE_KEY)
-    );
-    setSelectedNewsletterId(nextId);
-
-    function handleStorage(event: StorageEvent) {
-      if (event.key !== SELECTED_NEWSLETTER_STORAGE_KEY) {
-        return;
+        onStoreChange();
       }
 
-      setSelectedNewsletterId(parseSelectedNewsletterId(event.newValue));
-    }
+      function handleSelectionChanged() {
+        onStoreChange();
+      }
 
-    function handleSelectionChanged() {
-      const currentId = parseSelectedNewsletterId(
-        window.localStorage.getItem(SELECTED_NEWSLETTER_STORAGE_KEY)
-      );
-      setSelectedNewsletterId(currentId);
-    }
+      window.addEventListener("storage", handleStorage);
+      window.addEventListener(SELECTED_NEWSLETTER_EVENT, handleSelectionChanged);
 
-    window.addEventListener("storage", handleStorage);
-    window.addEventListener(SELECTED_NEWSLETTER_EVENT, handleSelectionChanged);
-
-    return () => {
-      window.removeEventListener("storage", handleStorage);
-      window.removeEventListener(SELECTED_NEWSLETTER_EVENT, handleSelectionChanged);
-    };
-  }, []);
+      return () => {
+        window.removeEventListener("storage", handleStorage);
+        window.removeEventListener(SELECTED_NEWSLETTER_EVENT, handleSelectionChanged);
+      };
+    },
+    () =>
+      parseSelectedNewsletterId(window.localStorage.getItem(SELECTED_NEWSLETTER_STORAGE_KEY)),
+    () => null
+  );
 
   const updateSelectedNewsletterId = useCallback((nextId: number | null) => {
     if (nextId == null) {
@@ -62,7 +57,6 @@ export function useSelectedNewsletterId() {
       window.localStorage.setItem(SELECTED_NEWSLETTER_STORAGE_KEY, String(nextId));
     }
 
-    setSelectedNewsletterId(nextId);
     window.dispatchEvent(new Event(SELECTED_NEWSLETTER_EVENT));
   }, []);
 

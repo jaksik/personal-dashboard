@@ -6,7 +6,6 @@ import ThemeToggle from "@/components/dashboard/ThemeToggle";
 import { newsletterDropdowns } from "@/data/newsletter-dropdowns";
 import PlaceholderGraph from "@/components/dashboard/PlaceholderGraph";
 import DottedWorldMap from "@/components/dashboard/DottedWorldMap";
-import ContributionHeatMapPlaceholder from "@/components/dashboard/ContributionHeatMap";
 import WorldClockRow from "@/components/dashboard/WorldClockRow";
 import SystemTasksTable from "@/components/dashboard/SystemTasksTable";
 

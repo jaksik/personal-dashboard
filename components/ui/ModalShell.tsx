@@ -6,7 +6,6 @@ type ModalShellProps = {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  description?: string;
   headerLeft?: ReactNode;
   headerLeftAlignment?: "left" | "center";
   children: ReactNode;
@@ -17,7 +16,6 @@ export default function ModalShell({
   isOpen,
   onClose,
   title,
-  description,
   headerLeft,
   headerLeftAlignment = "left",
   children,

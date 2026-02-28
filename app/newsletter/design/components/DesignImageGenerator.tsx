@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import type { NewsletterImage } from "../actions";
 
 const GROK_IMAGE_MODELS = [
@@ -128,9 +129,11 @@ export default function DesignImageGenerator({
                     isCoverImage ? "border-accent" : "border-foreground/15"
                   }`}
                 >
-                  <img
+                  <Image
                     src={image.blob_url}
                     alt={image.prompt ?? "Generated newsletter image"}
+                    width={640}
+                    height={192}
                     className="h-24 w-full rounded object-cover"
                   />
                   <p className="app-text-muted mt-1 text-[11px]">{formatMonthDay(image.created_at)}</p>
