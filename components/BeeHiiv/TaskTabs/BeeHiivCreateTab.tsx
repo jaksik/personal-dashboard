@@ -6,16 +6,6 @@ type OperationLogStatusListProps = {
   lookbackHours?: number;
 };
 
-function formatTime(value: string) {
-  const date = new Date(value);
-  const hours24 = date.getHours();
-  const hours12 = hours24 % 12 || 12;
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const meridiem = hours24 >= 12 ? "pm" : "am";
-
-  return `${String(hours12).padStart(2, "0")}:${minutes}${meridiem}`;
-}
-
 export default async function OperationLogStatusList({
   lookbackHours = 50,
 }: OperationLogStatusListProps) {
@@ -32,8 +22,6 @@ export default async function OperationLogStatusList({
   const [
     { count: articleCount },
     { count: jobCount },
-    { data: latestArticleRows },
-    { data: latestJobRows },
     { data: todaysNewsletterRows },
     { data: articleFetcherLogs },
     { data: snippetGeneratorLogs },
@@ -48,18 +36,6 @@ export default async function OperationLogStatusList({
       .from("job_postings")
       .select("id", { count: "exact", head: true })
       .gte("created_at", cutoff),
-    supabase
-      .from("articles")
-      .select("created_at")
-      .gte("created_at", cutoff)
-      .order("created_at", { ascending: false })
-      .limit(1),
-    supabase
-      .from("job_postings")
-      .select("created_at")
-      .gte("created_at", cutoff)
-      .order("created_at", { ascending: false })
-      .limit(1),
     supabase
       .from("newsletters")
       .select("id, created_at")
@@ -92,8 +68,6 @@ export default async function OperationLogStatusList({
       .order("created_at", { ascending: false }),
   ]);
 
-  const latestArticleCreatedAt = latestArticleRows?.[0]?.created_at ?? null;
-  const latestJobCreatedAt = latestJobRows?.[0]?.created_at ?? null;
   const articleCountValue = articleCount ?? 0;
   const jobCountValue = jobCount ?? 0;
   const snippetCountValue = snippetGeneratorLogs?.length ?? 0;

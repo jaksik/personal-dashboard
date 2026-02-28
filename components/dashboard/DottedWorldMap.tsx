@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import DottedMap from "dotted-map";
 
 function getIsDarkTheme() {
@@ -57,9 +58,12 @@ export default function DottedWorldMap() {
 
   return (
     <div className="app-panel p-4">
-      <img
+      <Image
         src={`data:image/svg+xml;utf8,${encodeURIComponent(mapSvg)}`}
         alt="Dotted world map"
+        width={1200}
+        height={420}
+        unoptimized
         className="mt-3 h-auto w-full"
       />
     </div>

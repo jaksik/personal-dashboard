@@ -19,9 +19,13 @@ import {
     getPublishers,
     getSources,
     getVisibleArticles,
-} from "./curateArticleSelectors";
-import { getJobCompanies, getJobLocations, getVisibleJobs } from "./curateJobSelectors";
-import useCurateMutations from "./useCurateMutations";
+} from "@/app/newsletter/curate/components/curateArticleSelectors";
+import {
+    getJobCompanies,
+    getJobLocations,
+    getVisibleJobs,
+} from "@/app/newsletter/curate/components/curateJobSelectors";
+import useCurateMutations from "@/app/newsletter/curate/components/useCurateMutations";
 import type {
     ArticleNewsletterFilter,
     ArticleRow,
@@ -321,7 +325,7 @@ export default function CurateWorkspace({
                                     </div>
                                     <div className="flex items-center gap-2">
                                         {activeTab === "articles" ? (
-                                            <div className="hidden max-w-[40rem] items-center justify-end gap-2 overflow-x-auto lg:flex">
+                                            <div className="hidden max-w-160 items-center justify-end gap-2 overflow-x-auto lg:flex">
                                                 {categoryCountBadges.map((badge) => (
                                                     <span
                                                         key={badge.category}

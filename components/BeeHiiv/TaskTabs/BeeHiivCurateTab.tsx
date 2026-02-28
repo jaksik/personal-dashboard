@@ -51,14 +51,11 @@ export default function BeeHiivCurateTab() {
   const [articleCount, setArticleCount] = useState(0);
   const [jobCount, setJobCount] = useState(0);
   const [categoryCounters, setCategoryCounters] = useState<CategoryCounter[]>([]);
-  const [activeNewsletterId, setActiveNewsletterId] = useState<number | null>(null);
-  const [isResolvingNewsletter, setIsResolvingNewsletter] = useState(true);
 
   useEffect(() => {
     let isCurrent = true;
 
     async function loadCurateSummary() {
-      setIsResolvingNewsletter(true);
       const supabase = createClient();
 
       let selectedNewsletter: { id: number } | null = null;
@@ -101,13 +98,9 @@ export default function BeeHiivCurateTab() {
         setArticleCount(0);
         setJobCount(0);
         setCategoryCounters([]);
-        setActiveNewsletterId(null);
         setSyncedAt(new Date());
-        setIsResolvingNewsletter(false);
         return;
       }
-
-      setActiveNewsletterId(selectedNewsletter.id);
 
       if (selectedNewsletterId !== selectedNewsletter.id) {
         setSelectedNewsletterId(selectedNewsletter.id);
@@ -156,7 +149,6 @@ export default function BeeHiivCurateTab() {
       setJobCount(jobs ?? 0);
       setCategoryCounters(nextCounters);
       setSyncedAt(new Date());
-      setIsResolvingNewsletter(false);
     }
 
     loadCurateSummary();

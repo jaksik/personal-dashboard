@@ -1,9 +1,13 @@
 "use client";
 
-import { Fragment, useMemo } from "react";
+import { Fragment, useMemo, type ReactElement } from "react";
+import Image from "next/image";
 import type { PublishContextArticle, PublishContextJob } from "../actions";
-import { getPublishHtmlSectionOrder } from "./payload/publishPayloadBuilder";
-import { publishPayloadConfig } from "./payload/publishPayloadConfig";
+import { getPublishHtmlSectionOrder } from "@/app/newsletter/publish/components/payload/publishPayloadBuilder";
+import {
+  publishPayloadConfig,
+  type PublishPayloadSection,
+} from "@/app/newsletter/publish/components/payload/publishPayloadConfig";
 import {
   getArticleDisplayDescription,
   getCategoryHeaderLabel,
@@ -11,7 +15,7 @@ import {
   getJobDisplayTitle,
   groupArticlesByCategory,
   toSafeHttpUrl,
-} from "./payload/publishPayloadUtils";
+} from "@/app/newsletter/publish/components/payload/publishPayloadUtils";
 
 type PublishPreviewPanelProps = {
   title: string | null;
@@ -37,9 +41,10 @@ export default function PublishPreviewPanel({
     [articles]
   );
 
-  const orderedSections = useMemo(() => {
+  const orderedSections = useMemo<ReactElement[]>(() => {
     const { order, includesTitle, includesSubtitle, firstHeaderIndex } =
       getPublishHtmlSectionOrder(publishPayloadConfig);
+    const typedOrder = order as PublishPayloadSection[];
     const inlineJobsAfterCategory =
       publishPayloadConfig.jobsPlacement.mode === "afterCategory" && jobs.length > 0;
     const targetInlineCategory =
@@ -88,7 +93,7 @@ export default function PublishPreviewPanel({
       );
     }
 
-    return order
+    return typedOrder
       .map((sectionId, index) => {
         if (sectionId === "title" || sectionId === "subtitle") {
           if (index !== firstHeaderIndex) {
@@ -113,10 +118,12 @@ export default function PublishPreviewPanel({
 
         if (sectionId === "coverImage") {
           return coverImage ? (
-            <img
+            <Image
               key={`cover-image-${index}`}
               src={coverImage}
               alt="Newsletter cover preview"
+              width={1200}
+              height={560}
               className="h-70 w-full rounded-md object-cover"
             />
           ) : (
@@ -200,7 +207,7 @@ export default function PublishPreviewPanel({
 
         return null;
       })
-      .filter(Boolean);
+          .filter((section): section is ReactElement => section !== null);
   }, [coverImage, groupedArticles, jobs, subTitle, title]);
 
   return (

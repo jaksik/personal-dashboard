@@ -12,7 +12,7 @@ import {
   type NewsletterImage,
 } from "../actions";
 import DesignImageGenerator from "./DesignImageGenerator";
-import DesignArticleSnippetDropdown from "./DesignArticleSnippetDropdown";
+import DesignArticleSnippetDropdown from "@/app/newsletter/design/components/DesignArticleSnippetDropdown";
 import DesignMetaForm from "./DesignMetaForm";
 import DesignPreviewPanel from "./DesignPreviewPanel";
 
