@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import BeeHiivCurateTab from "@/components/BeeHiiv/TaskTabs/BeeHiivCurateTab";
 import BeeHiivDesignTab from "@/components/BeeHiiv/TaskTabs/BeeHiivDesignTab";
-import BeeHiivCountdownTimer from "@/components/BeeHiiv/BeeHiivCountdownTimer";
+import BeeHiivCountdownTimer from "./BeeHiiv/BeeHiivCountdownTimer";
 import BeeHiivNewsletterSelectorWithCreate from "./BeeHiiv/BeeHiivNewsletterSelectorWithCreate";
 import DetailTabs from "@/components/BeeHiiv/TaskTabs";
 import OperationLogStatusList from "@/components/BeeHiiv/TaskTabs/BeeHiivCreateTab";

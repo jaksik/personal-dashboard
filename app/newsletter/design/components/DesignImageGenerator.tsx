@@ -68,10 +68,9 @@ export default function DesignImageGenerator({
   }
 
   return (
-    <div className="rounded-lg border border-foreground/15 bg-foreground/2 p-3">
-      <h4 className="text-sm font-semibold">Cover Image Generator</h4>
+    <div className="rounded-lg p-3">
 
-      <form onSubmit={handleSubmit} className="mt-3 space-y-2">
+      <form onSubmit={handleSubmit} className="space-y-2">
         <label className="app-text-muted mb-1 block text-[11px] font-medium uppercase tracking-[0.08em]">
           Model
         </label>
@@ -99,13 +98,15 @@ export default function DesignImageGenerator({
           disabled={disabled || isGenerating}
         />
 
-        <button
-          type="submit"
-          disabled={disabled || isGenerating}
-          className="app-btn w-full px-3 py-2 text-xs font-medium disabled:opacity-60"
-        >
-          {isGenerating ? "Generating..." : "Generate"}
-        </button>
+        <div className="pt-1 flex justify-end">
+          <button
+            type="submit"
+            disabled={disabled || isGenerating}
+            className="app-neon-badge app-neon-fuchsia inline-flex items-center px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] transition disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isGenerating ? "Generating..." : "Generate"}
+          </button>
+        </div>
       </form>
 
       <div className="mt-3 space-y-2">
@@ -116,7 +117,7 @@ export default function DesignImageGenerator({
         {images.length === 0 ? (
           <p className="app-text-muted text-xs">No images for this newsletter.</p>
         ) : (
-          <div className="max-h-136 space-y-2 overflow-y-auto pr-1">
+          <div className="max-h-136 grid grid-cols-2 gap-2 overflow-y-auto pr-1">
             {images.map((image) => {
               const isCoverImage = coverImage === image.blob_url;
 
@@ -134,28 +135,32 @@ export default function DesignImageGenerator({
                   />
                   <p className="app-text-muted mt-1 text-[11px]">{formatMonthDay(image.created_at)}</p>
                   <p className="mt-1 text-[11px]">{truncateText(image.prompt, 70)}</p>
-                  <button
-                    type="button"
-                    disabled={disabled || isCoverImage || settingCoverImageId === image.id}
-                    onClick={async () => {
-                      setSettingCoverImageId(image.id);
+                  <div className="mt-2 flex justify-end">
+                    <button
+                      type="button"
+                      disabled={disabled || isCoverImage || settingCoverImageId === image.id}
+                      onClick={async () => {
+                        setSettingCoverImageId(image.id);
 
-                      try {
-                        await onSetCoverImage(image.id);
-                      } finally {
-                        setSettingCoverImageId(null);
-                      }
-                    }}
-                    className={`mt-2 w-full px-2 py-1 text-[11px] font-medium disabled:opacity-60 ${
-                      isCoverImage ? "app-btn" : "app-btn-ghost"
-                    }`}
-                  >
-                    {isCoverImage
-                      ? "Current Cover"
-                      : settingCoverImageId === image.id
-                        ? "Saving..."
-                        : "Set as Cover"}
-                  </button>
+                        try {
+                          await onSetCoverImage(image.id);
+                        } finally {
+                          setSettingCoverImageId(null);
+                        }
+                      }}
+                      className={`app-neon-badge inline-flex items-center px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] transition disabled:cursor-not-allowed ${
+                        isCoverImage
+                          ? "app-cover-current-btn font-bold disabled:opacity-100"
+                          : "app-neon-sky disabled:opacity-60"
+                      }`}
+                    >
+                      {isCoverImage
+                        ? "Current Cover"
+                        : settingCoverImageId === image.id
+                          ? "Saving..."
+                          : "Set as Cover"}
+                    </button>
+                  </div>
                 </div>
               );
             })}

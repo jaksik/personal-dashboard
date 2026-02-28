@@ -7,12 +7,12 @@ type CurateTabsProps = {
 
 export default function CurateTabs({ activeTab, onChange }: CurateTabsProps) {
   return (
-    <div className="rounded-xl border border-foreground/15 bg-foreground/3 p-1">
-      <div className="grid grid-cols-2 gap-1">
+    <div className="h-9 rounded-xl border border-foreground/15 bg-foreground/3 p-0.5 md:h-10">
+      <div className="grid h-full grid-cols-2 gap-1">
         <button
           type="button"
           onClick={() => onChange("articles")}
-          className="rounded-lg border px-3 py-2 text-sm font-semibold transition md:py-2.5"
+          className="h-full rounded-lg border px-3 text-sm font-semibold transition"
           style={
             activeTab === "articles"
               ? {
@@ -33,7 +33,7 @@ export default function CurateTabs({ activeTab, onChange }: CurateTabsProps) {
         <button
           type="button"
           onClick={() => onChange("jobs")}
-          className="rounded-lg border px-3 py-2 text-sm font-semibold transition md:py-2.5"
+          className="h-full rounded-lg border px-3 text-sm font-semibold transition"
           style={
             activeTab === "jobs"
               ? {

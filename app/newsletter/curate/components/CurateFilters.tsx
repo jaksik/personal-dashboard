@@ -7,6 +7,7 @@ type CurateFiltersProps = {
   onArticleSearchSubmit: () => void;
   articleCategory: string;
   onArticleCategoryChange: (value: string) => void;
+  categoryToneByName: Record<string, string>;
   categories: string[];
   articlePublisher: string;
   onArticlePublisherChange: (value: string) => void;
@@ -56,6 +57,7 @@ export default function CurateFilters({
   onArticleSearchSubmit,
   articleCategory,
   onArticleCategoryChange,
+  categoryToneByName,
   categories,
   articlePublisher,
   onArticlePublisherChange,
@@ -126,7 +128,7 @@ export default function CurateFilters({
             <select
               value={articleCategory}
               onChange={(event) => onArticleCategoryChange(event.target.value)}
-              className="app-input h-9 md:h-10"
+              className={`app-input app-input-neon h-9 md:h-10 ${categoryToneByName[articleCategory] ?? ""}`}
               aria-label="Filter article category"
             >
               <option value="all">All categories</option>
@@ -167,6 +169,7 @@ export default function CurateFilters({
               className="app-input h-9 md:h-10"
               aria-label="Filter article newsletter assignment"
             >
+              <option value="unassigned_or_target">Unassigned + Selected</option>
               <option value="all">All</option>
               <option value="unassigned">Unassigned</option>
               <option value="assigned">Assigned</option>

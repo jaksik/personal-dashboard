@@ -11,7 +11,13 @@ export type SortKey =
 
 export type JobSortKey = "title" | "company" | "location" | "remote" | "created_at" | "posted_date";
 
-export type ArticleNewsletterFilter = "all" | "unassigned" | "assigned" | "target" | "other";
+export type ArticleNewsletterFilter =
+  | "all"
+  | "unassigned"
+  | "assigned"
+  | "target"
+  | "other"
+  | "unassigned_or_target";
 
 export type NewsletterOption = {
   id: number;

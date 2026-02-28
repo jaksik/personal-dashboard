@@ -12,6 +12,7 @@ import {
   type NewsletterImage,
 } from "../actions";
 import DesignImageGenerator from "./DesignImageGenerator";
+import DesignArticleSnippetDropdown from "./DesignArticleSnippetDropdown";
 import DesignMetaForm from "./DesignMetaForm";
 import DesignPreviewPanel from "./DesignPreviewPanel";
 
@@ -30,6 +31,7 @@ export default function DesignWorkspace() {
   const [subTitle, setSubTitle] = useState("");
   const [isMetaPanelOpen, setIsMetaPanelOpen] = useState(false);
   const [isImagePanelOpen, setIsImagePanelOpen] = useState(false);
+  const [isSnippetPanelOpen, setIsSnippetPanelOpen] = useState(false);
 
   useEffect(() => {
     async function loadWorkspaceData() {
@@ -140,16 +142,23 @@ export default function DesignWorkspace() {
   return (
     <div className="mx-auto w-full max-w-6xl border-t border-foreground/15 py-6">
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
-        <section className="space-y-4 lg:col-span-5">
+        <section className="space-y-4 lg:col-span-6">
           <div className="rounded-xl border border-foreground/15 bg-foreground/3 p-2">
-            <button
-              type="button"
-              onClick={() => setIsMetaPanelOpen((current) => !current)}
-              className="app-btn-ghost flex w-full items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em]"
-            >
-              <span>Newsletter Details</span>
-              <span>{isMetaPanelOpen ? "Hide" : "Show"}</span>
-            </button>
+            <div className="flex justify-start">
+              <button
+                type="button"
+                onClick={() => setIsMetaPanelOpen((current) => !current)}
+                className="app-neon-badge app-neon-cyan inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] transition"
+              >
+                <span>Newsletter Details</span>
+                <span
+                  className="app-neon-pill px-2 py-0.5 text-[12px] font-bold leading-none"
+                  aria-label={isMetaPanelOpen ? "Collapse" : "Expand"}
+                >
+                  {isMetaPanelOpen ? "▲" : "▼"}
+                </span>
+              </button>
+            </div>
 
             {isMetaPanelOpen ? (
               <div className="mt-2">
@@ -166,14 +175,21 @@ export default function DesignWorkspace() {
           </div>
 
           <div className="rounded-xl border border-foreground/15 bg-foreground/3 p-2">
-            <button
-              type="button"
-              onClick={() => setIsImagePanelOpen((current) => !current)}
-              className="app-btn-ghost flex w-full items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em]"
-            >
-              <span>Image Generator</span>
-              <span>{isImagePanelOpen ? "Hide" : "Show"}</span>
-            </button>
+            <div className="flex justify-start">
+              <button
+                type="button"
+                onClick={() => setIsImagePanelOpen((current) => !current)}
+                className="app-neon-badge app-neon-fuchsia inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] transition"
+              >
+                <span>Image Generator</span>
+                <span
+                  className="app-neon-pill px-2 py-0.5 text-[12px] font-bold leading-none"
+                  aria-label={isImagePanelOpen ? "Collapse" : "Expand"}
+                >
+                  {isImagePanelOpen ? "▲" : "▼"}
+                </span>
+              </button>
+            </div>
 
             {isImagePanelOpen ? (
               <div className="mt-2">
@@ -188,6 +204,33 @@ export default function DesignWorkspace() {
             ) : null}
           </div>
 
+          <div className="rounded-xl border border-foreground/15 bg-foreground/3 p-2">
+            <div className="flex justify-start">
+              <button
+                type="button"
+                onClick={() => setIsSnippetPanelOpen((current) => !current)}
+                className="app-neon-badge app-neon-sky inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] transition"
+              >
+                <span>Article Snippets</span>
+                <span
+                  className="app-neon-pill px-2 py-0.5 text-[12px] font-bold leading-none"
+                  aria-label={isSnippetPanelOpen ? "Collapse" : "Expand"}
+                >
+                  {isSnippetPanelOpen ? "▲" : "▼"}
+                </span>
+              </button>
+            </div>
+
+            {isSnippetPanelOpen ? (
+              <div className="mt-2">
+                <DesignArticleSnippetDropdown
+                  disabled={isLoading || isNewsletterMissing}
+                  articles={articles}
+                />
+              </div>
+            ) : null}
+          </div>
+
           {isLoading ? <p className="app-text-muted px-1 text-xs">Loading design workspace...</p> : null}
           {!isLoading && isNewsletterMissing ? (
             <p className="app-text-muted px-1 text-xs">Select a newsletter to load design context.</p>
@@ -196,7 +239,7 @@ export default function DesignWorkspace() {
           {message ? <p className="app-text-muted px-1 text-xs">{message}</p> : null}
         </section>
 
-        <section className="lg:col-span-7">
+        <section className="lg:col-span-6">
           <DesignPreviewPanel
             title={newsletter?.title ?? null}
             subTitle={newsletter?.sub_title ?? null}
