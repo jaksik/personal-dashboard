@@ -7,6 +7,7 @@ import {
   type PublishContextArticle,
   type PublishContextJob,
   type PublishContextNewsletter,
+  type PublishStockRecap,
 } from "../actions";
 import PublishPreviewPanel from "@/app/newsletter/publish/components/PublishPreviewPanel";
 
@@ -18,6 +19,7 @@ export default function PublishWorkspace() {
   const [newsletter, setNewsletter] = useState<PublishContextNewsletter | null>(null);
   const [articles, setArticles] = useState<PublishContextArticle[]>([]);
   const [jobs, setJobs] = useState<PublishContextJob[]>([]);
+  const [stockRecaps, setStockRecaps] = useState<PublishStockRecap[]>([]);
 
   useEffect(() => {
     async function loadPublishWorkspaceData() {
@@ -29,6 +31,7 @@ export default function PublishWorkspace() {
         setNewsletter(payload.newsletter);
         setArticles(payload.articles);
         setJobs(payload.jobs);
+        setStockRecaps(payload.stockRecaps);
       } catch (loadError) {
         setError(loadError instanceof Error ? loadError.message : "Failed to load publish workspace.");
       } finally {
@@ -69,6 +72,7 @@ export default function PublishWorkspace() {
               coverImage={newsletter.cover_image}
               articles={articles}
               jobs={jobs}
+              stockRecaps={stockRecaps}
             />
           </section>
         </div>
