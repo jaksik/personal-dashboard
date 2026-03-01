@@ -2,16 +2,27 @@
 
 import { useState } from "react";
 
+const BEEHIIV_TEMPLATE_LIBRARY_URL =
+  "https://app.beehiiv.com/posts/template-library?tab=my_templates";
+
 type PublishCopyButtonProps = {
   htmlPayload: string;
   plainTextPayload: string;
+  label?: string;
+  buttonClassName?: string;
 };
 
-export default function PublishCopyButton({ htmlPayload, plainTextPayload }: PublishCopyButtonProps) {
+export default function PublishCopyButton({
+  htmlPayload,
+  plainTextPayload,
+  label = "Copy Payload",
+  buttonClassName,
+}: PublishCopyButtonProps) {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   async function handleCopy() {
     setStatusMessage(null);
+    window.open(BEEHIIV_TEMPLATE_LIBRARY_URL, "_blank", "noopener,noreferrer");
 
     try {
       if (typeof ClipboardItem !== "undefined") {
@@ -36,9 +47,12 @@ export default function PublishCopyButton({ htmlPayload, plainTextPayload }: Pub
       <button
         type="button"
         onClick={handleCopy}
-        className="app-neon-badge app-neon-cyan inline-flex items-center px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] transition"
+        className={
+          buttonClassName ??
+          "app-neon-badge app-neon-cyan inline-flex items-center px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] transition"
+        }
       >
-        Copy Payload
+        {label}
       </button>
 
       {statusMessage ? <p className="app-text-muted text-xs">{statusMessage}</p> : null}

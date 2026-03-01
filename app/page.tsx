@@ -1,13 +1,19 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getNewsletterDropdownContentById } from "@/components/NewsletterDropdownDetails";
 import { createClient } from "@/utils/supabase/server";
 import NewsletterDropdown from "@/components/NewsletterDropdown";
-import ThemeToggle from "@/components/dashboard/ThemeToggle";
 import { newsletterDropdowns } from "@/data/newsletter-dropdowns";
-import PlaceholderGraph from "@/components/dashboard/PlaceholderGraph";
-import DottedWorldMap from "@/components/dashboard/DottedWorldMap";
-import WorldClockRow from "@/components/dashboard/WorldClockRow";
 import SystemTasksTable from "@/components/dashboard/SystemTasksTable";
+import HomeTopRightActions from "@/components/dashboard/HomeTopRightActions";
+
+const projectModules = [
+  { href: "/content-generator", label: "Content Generator" },
+  { href: "/newsletter/curate", label: "Newsletter Curate" },
+  { href: "/newsletter/design", label: "Newsletter Design" },
+  { href: "/newsletter/publish", label: "Newsletter Publish" },
+  { href: "/newsletter", label: "Newsletter Home" },
+];
 
 
 export default async function Home() {
@@ -27,35 +33,10 @@ export default async function Home() {
     .limit(8);
   const tasks = Array.isArray(tasksResult) ? tasksResult : [];
   const tasksErrorMessage = tasksError ? `system.tasks: ${tasksError.message}` : null;
-  const newsletterDropdownContentById = getNewsletterDropdownContentById({
-    tasks,
-    tasksErrorMessage,
-  });
-
-  async function signOut() {
-    "use server";
-
-    const supabase = await createClient();
-    await supabase.auth.signOut();
-    redirect("/sign-in");
-  }
+  const newsletterDropdownContentById = getNewsletterDropdownContentById();
 
   return (
     <div className="app-shell min-h-screen">
-      <header className="flex items-center justify-end px-6 py-6">
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <form action={signOut}>
-            <button
-              type="submit"
-              className="app-btn-ghost px-4 py-2"
-            >
-              Sign out
-            </button>
-          </form>
-        </div>
-      </header>
-
       <main className="px-6 pb-8">
         <div className="mx-auto grid w-full grid-cols-1 gap-4 lg:grid-cols-12">
           <section className="space-y-4 lg:col-span-3">
@@ -68,29 +49,28 @@ export default async function Home() {
           </section>
 
           <section className="space-y-4 lg:col-span-6">
-            <WorldClockRow />
-            <DottedWorldMap />
+            {/* <WorldClockRow />
+            <DottedWorldMap /> */}
             <div className="overflow-hidden p-0 mb-3">
               <div className="grid grid-cols-2 divide-x divide-y divide-foreground/20 md:grid-cols-4 md:divide-y-0">
                 <div className="px-4 py-6 text-center">
-                  <p className="app-text-muted text-md">Active Systems</p>
-                  <p className="mt-2 text-4xl font-semibold leading-none">3</p>
+                  <p className="app-text-muted text-md">Active Systems Monitored</p>
+                  <p className="mt-2 text-3xl font-semibold leading-none">3</p>
                 </div>
                 <div className="px-4 py-6 text-center">
-                  <p className="app-text-muted text-md">Weekly Checkins</p>
-                  <p className="mt-2 text-4xl font-semibold leading-none">7</p>
+                  <p className="app-text-muted text-md">Weekly Tasks to Complete</p>
+                  <p className="mt-2 text-3xl font-semibold leading-none">7</p>
                 </div>
                 <div className="px-4 py-6 text-center">
-                  <p className="app-text-muted text-md">Time Commitment</p>
-                  <p className="mt-2 text-4xl font-semibold leading-none">12 h/w</p>
+                  <p className="app-text-muted text-md">Weekly Time Commitment</p>
+                  <p className="mt-2 text-3xl font-semibold leading-none">12 Hours</p>
                 </div>
                 <div className="px-4 py-6 text-center">
-                  <p className="app-text-muted text-md">Revenue Potential</p>
-                  <p className="mt-2 text-4xl font-semibold leading-none">~$7k/w</p>
+                  <p className="app-text-muted text-md">Weekly Income Potential</p>
+                  <p className="mt-2 text-3xl font-semibold leading-none">~$5k</p>
                 </div>
               </div>
             </div>
-            {/* <ContributionHeatMapPlaceholder /> */}
 
             {newsletterDropdowns.map((item) => (
               <NewsletterDropdown
@@ -104,19 +84,29 @@ export default async function Home() {
           </section>
 
           <section className="space-y-4 lg:col-span-3">
+            <HomeTopRightActions />
             <div className="app-panel p-4">
               <h2 className="app-text-muted underline text-sm">Total Income (30 day rolling)</h2>
               <p className="mt-2 font-bold text-5xl">
                 $-------
               </p>
             </div>
-            <PlaceholderGraph />
+        
 
             <div className="app-panel p-4">
-              <h3 className="text-sm font-semibold">Notes</h3>
-              <p className="app-text-muted mt-2 text-sm">
-                Reserve this area for lightweight components.
-              </p>
+              <h3 className="text-sm font-semibold">Project Modules</h3>
+              <ul className="mt-3 space-y-2">
+                {projectModules.map((module) => (
+                  <li key={module.href}>
+                    <Link
+                      href={module.href}
+                      className="text-sm underline-offset-4 hover:underline"
+                    >
+                      {module.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
           </section>
         </div>

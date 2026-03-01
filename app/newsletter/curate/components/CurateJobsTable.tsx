@@ -205,7 +205,7 @@ export default function CurateJobsTable({
                     </span>
                   </button>
                 </th>
-                <th className="px-4 py-3 font-semibold text-right">Edit</th>
+                <th className="px-4 py-3 font-semibold text-right"></th>
               </tr>
             </thead>
             <tbody>

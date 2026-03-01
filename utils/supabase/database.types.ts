@@ -150,6 +150,36 @@ export type Database = {
         }
         Relationships: []
       }
+      metrics: {
+        Row: {
+          "90_day_opens": number | null
+          created_at: string
+          ctr: number | null
+          id: number
+          open_rate: number | null
+          publications: number | null
+          subscribers: number | null
+        }
+        Insert: {
+          "90_day_opens"?: number | null
+          created_at?: string
+          ctr?: number | null
+          id?: number
+          open_rate?: number | null
+          publications?: number | null
+          subscribers?: number | null
+        }
+        Update: {
+          "90_day_opens"?: number | null
+          created_at?: string
+          ctr?: number | null
+          id?: number
+          open_rate?: number | null
+          publications?: number | null
+          subscribers?: number | null
+        }
+        Relationships: []
+      }
       newsletter_images: {
         Row: {
           blob_url: string
@@ -234,49 +264,115 @@ export type Database = {
       }
       stock_prices: {
         Row: {
+          category: string | null
           close_date: string | null
           close_price: number | null
-          created_at: string
-          id: number
-          ticker: string | null
-        }
-        Insert: {
-          close_date?: string | null
-          close_price?: number | null
-          created_at?: string
-          id?: number
-          ticker?: string | null
-        }
-        Update: {
-          close_date?: string | null
-          close_price?: number | null
-          created_at?: string
-          id?: number
-          ticker?: string | null
-        }
-        Relationships: []
-      }
-      stock_tickers: {
-        Row: {
-          active: boolean | null
           created_at: string
           id: number
           name: string | null
           ticker: string | null
         }
         Insert: {
-          active?: boolean | null
+          category?: string | null
+          close_date?: string | null
+          close_price?: number | null
           created_at?: string
           id?: number
           name?: string | null
           ticker?: string | null
         }
         Update: {
-          active?: boolean | null
+          category?: string | null
+          close_date?: string | null
+          close_price?: number | null
           created_at?: string
           id?: number
           name?: string | null
           ticker?: string | null
+        }
+        Relationships: []
+      }
+      stock_recaps: {
+        Row: {
+          category: string
+          category_change: number | null
+          created_at: string
+          id: number
+          laggard_change: number
+          laggard_name: string
+          laggard_price: number
+          laggard_ticker: string
+          leader_change: number
+          leader_name: string
+          leader_price: number
+          leader_ticker: string
+          week_end: string | null
+          week_start: string | null
+        }
+        Insert: {
+          category: string
+          category_change?: number | null
+          created_at?: string
+          id?: number
+          laggard_change: number
+          laggard_name: string
+          laggard_price: number
+          laggard_ticker: string
+          leader_change: number
+          leader_name: string
+          leader_price: number
+          leader_ticker: string
+          week_end?: string | null
+          week_start?: string | null
+        }
+        Update: {
+          category?: string
+          category_change?: number | null
+          created_at?: string
+          id?: number
+          laggard_change?: number
+          laggard_name?: string
+          laggard_price?: number
+          laggard_ticker?: string
+          leader_change?: number
+          leader_name?: string
+          leader_price?: number
+          leader_ticker?: string
+          week_end?: string | null
+          week_start?: string | null
+        }
+        Relationships: []
+      }
+      stock_tickers: {
+        Row: {
+          active: boolean
+          category: string
+          created_at: string
+          description: string | null
+          fetched_today: boolean
+          id: number
+          name: string
+          ticker: string
+        }
+        Insert: {
+          active?: boolean
+          category: string
+          created_at?: string
+          description?: string | null
+          fetched_today?: boolean
+          id?: number
+          name: string
+          ticker: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          description?: string | null
+          fetched_today?: boolean
+          id?: number
+          name?: string
+          ticker?: string
         }
         Relationships: []
       }
