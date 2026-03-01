@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import useSelectedNewsletterId from "@/components/newsletter/useSelectedNewsletterId";
 import {
   getPublishWorkspaceDataAction,
@@ -8,8 +8,6 @@ import {
   type PublishContextJob,
   type PublishContextNewsletter,
 } from "../actions";
-import { buildPublishPayloads } from "@/app/newsletter/publish/components/payload/publishPayloadBuilder";
-import PublishCopyButton from "@/app/newsletter/publish/components/PublishCopyButton";
 import PublishPreviewPanel from "@/app/newsletter/publish/components/PublishPreviewPanel";
 
 export default function PublishWorkspace() {
@@ -41,19 +39,6 @@ export default function PublishWorkspace() {
     loadPublishWorkspaceData();
   }, [selectedNewsletterId]);
 
-  const payloads = useMemo(() => {
-    if (!newsletter) {
-      return {
-        htmlPayload: "",
-        plainTextPayload: "",
-      };
-    }
-
-    return buildPublishPayloads({ newsletter, articles, jobs });
-  }, [newsletter, articles, jobs]);
-
-  const { htmlPayload, plainTextPayload } = payloads;
-
   return (
     <div className="mx-auto w-full max-w-6xl border-t border-foreground/15 py-6">
       {isLoading ? <p className="app-text-muted px-1 text-xs">Loading publish workspace...</p> : null}
@@ -64,17 +49,8 @@ export default function PublishWorkspace() {
 
       {newsletter ? (
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
-          <section className="space-y-3 lg:col-span-6">
-            <div className="rounded-xl border border-foreground/15 bg-foreground/3 p-3">
-              <p className="app-text-muted text-[11px] font-semibold uppercase tracking-[0.08em]">
-                Payload Generator
-              </p>
-              <h4 className="mt-1 text-base font-semibold">{newsletter.title ?? "Newsletter Title"}</h4>
-
-              <div className="mt-3">
-                <PublishCopyButton htmlPayload={htmlPayload} plainTextPayload={plainTextPayload} />
-              </div>
-            </div>
+          {/* <section className="space-y-3 lg:col-span-6">
+           
 
             <div className="rounded-xl border border-foreground/15 bg-foreground/3 p-3">
               <p className="app-text-muted text-[11px] font-semibold uppercase tracking-[0.08em]">
@@ -84,9 +60,9 @@ export default function PublishWorkspace() {
                 {htmlPayload}
               </pre>
             </div>
-          </section>
+          </section> */}
 
-          <section className="lg:col-span-6">
+          <section className="lg:col-span-7 lg:col-start-4">
             <PublishPreviewPanel
               title={newsletter.title}
               subTitle={newsletter.sub_title}

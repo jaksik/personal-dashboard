@@ -10,6 +10,7 @@ export type DesignContextNewsletter = {
 	title: string | null;
 	sub_title: string | null;
 	cover_image: string | null;
+	cover_article: number | null;
 	created_at: string;
 };
 
@@ -64,7 +65,7 @@ export async function getDesignWorkspaceDataAction(
 
 	const newsletterQuery = supabase
 		.from("newsletters")
-		.select("id, title, sub_title, cover_image, created_at")
+		.select("id, title, sub_title, cover_image, cover_article, created_at")
 		.order("created_at", { ascending: false })
 		.limit(1);
 
@@ -136,7 +137,7 @@ export async function updateNewsletterMetaAction(input: {
 			sub_title: subTitle.length > 0 ? subTitle : null,
 		})
 		.eq("id", input.newsletterId)
-		.select("id, title, sub_title, cover_image, created_at")
+		.select("id, title, sub_title, cover_image, cover_article, created_at")
 		.single();
 
 	if (updateError || !updatedNewsletter) {

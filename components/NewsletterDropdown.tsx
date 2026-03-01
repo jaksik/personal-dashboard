@@ -58,7 +58,7 @@ export default function NewsletterDropdown({
           aria-hidden="true"
         />
         <div className="absolute right-5 top-4 text-right">
-          <p className="app-text-muted underline text-xs">30 Day Income</p>
+          <p className="app-text-muted underline text-xs">Avg. Weekly Income (90 day rolling)</p>
           <p className="text-2xl text-[#15a71f] font-semibold">{item.thirtyDayIncome ?? "—"}</p>
         </div>
         {item.imageSrc ? (
@@ -94,7 +94,9 @@ export default function NewsletterDropdown({
           <h3 className="truncate text-2xl font-semibold mt-2 leading-tight">
             {item.title}
           </h3>
-
+                      {/* <ContributionHeatMapPlaceholder /> */}
+          
+{/* 
           <p className="mt-1 text-sm">
             <span className="font-semibold">Time Commitment:</span>{" "}
             {item.timeCommitment}
@@ -102,7 +104,7 @@ export default function NewsletterDropdown({
           <p className="text-sm">
             <span className="font-semibold">Revenue Potential:</span>{" "}
             {item.revenuePotential}
-          </p>
+          </p> */}
         </div>
       </summary>
 

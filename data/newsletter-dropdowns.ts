@@ -7,7 +7,7 @@ export const newsletterDropdowns: NewsletterDropdownData[] = [
     title: "The AI Entrepreneur Newsletter",
     timeCommitment: "30 min, 3/week",
     revenuePotential: "$5,000 / week",
-    thirtyDayIncome: "$21,400",
+    thirtyDayIncome: "$1,400",
     badges: [
       { label: "Action Required", tone: "attention" }
     ],
@@ -15,30 +15,5 @@ export const newsletterDropdowns: NewsletterDropdownData[] = [
     imageAlt: "AI Entrepreneur logo",
     details:
       "Use this section for deeper stats, links, or componentized metrics for this newsletter idea.",
-  },
-  {
-    id: "growth-ops",
-    category: "YouTube Channel",
-    title: "Sharp Startup YouTube Channel",
-    timeCommitment: "45 min, 2/week",
-    revenuePotential: "$2,800 / week",
-    thirtyDayIncome: "$9,850",
-    badges: [],
-    imageSrc: "/youtube-logo.webp",
-    imageAlt: "Growth Ops logo",
-    details:
-      "Placeholder content for experiments, performance snapshots, and upcoming campaigns.",
-  },
-  {
-    id: "saas-intelligence",
-    category: "Market Investments",
-    title: "Dividend Portfolio",
-    timeCommitment: "1 hour, 1/month",
-    revenuePotential: "$1,200 / week",
-    thirtyDayIncome: "$4,800",
-    badges: [],
-    imageSrc: "/robinhood-2.webp",
-    details:
-      "Placeholder content for your future hydrated components, such as trend charts and article blocks.",
-  },
+  }
 ];

@@ -2,14 +2,14 @@
 
 import type { CSSProperties, ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { getCurateWorkspaceDataAction } from "../actions";
 import CurateArticlesTable from "./CurateArticlesTable";
 import CurateFilters from "./CurateFilters";
 import CurateJobsTable from "./CurateJobsTable";
 import CurateTabs from "./CurateTabs";
 import NewsletterPageNav from "@/components/newsletter/NewsletterPageNav";
-import NewsletterSelect from "@/components/newsletter/NewsletterSelect";
+import NewsletterSubNavRow from "@/components/newsletter/NewsletterSubNavRow";
+import NewsletterWorkflowNavControls from "@/components/newsletter/NewsletterWorkflowNavControls";
 import useSelectedNewsletterId from "@/components/newsletter/useSelectedNewsletterId";
 import {
     getCategories,
@@ -44,7 +44,7 @@ export default function CurateWorkspace({
 }: CurateWorkspaceProps) {
     const headerRef = useRef<HTMLDivElement | null>(null);
     const [headerHeight, setHeaderHeight] = useState(208);
-    const { selectedNewsletterId, setSelectedNewsletterId } = useSelectedNewsletterId();
+    const { selectedNewsletterId } = useSelectedNewsletterId();
     const [activeTab, setActiveTab] = useState<CurateTab>("articles");
     const [isFiltersPanelOpen, setIsFiltersPanelOpen] = useState(false);
 
@@ -214,6 +214,14 @@ export default function CurateWorkspace({
         ]
     );
 
+    const selectedNewsletterJobCount = useMemo(() => {
+        if (!targetNewsletter) {
+            return 0;
+        }
+
+        return jobPostings.filter((job) => job.newsletter_id === targetNewsletter.id).length;
+    }, [jobPostings, targetNewsletter]);
+
     const {
         addingArticleIds,
         updatingCategoryArticleIds,
@@ -300,68 +308,56 @@ export default function CurateWorkspace({
                     <div className="border border-foreground/15 bg-foreground/2 px-2">
                         <NewsletterPageNav
                             compactDashboardButton
-                            leftActions={
-                                <Link
-                                    href="/newsletter/design"
-                                    className="app-btn-ghost inline-flex items-center gap-1 px-4 py-2 text-sm font-medium"
-                                >
-                                    Design
-                                    <span aria-hidden="true">→</span>
-                                </Link>
-                            }
                             rightActions={rightHeaderActions}
-                            centerContent={
-                                <div className="flex flex-wrap items-center justify-between gap-3">
-                                    <div className="flex min-w-0 items-center gap-2">
-                                        <div className="w-full max-w-sm md:w-72 md:max-w-none">
-                                            <NewsletterSelect
-                                                value={selectedNewsletterId}
-                                                onChange={setSelectedNewsletterId}
+                            centerContent={<NewsletterWorkflowNavControls />}
+                        />
+
+                        <NewsletterSubNavRow
+                            leftContent={<CurateTabs activeTab={activeTab} onChange={setActiveTab} />}
+                            rightContent={
+                                <div className="flex min-w-0 items-center justify-end gap-2">
+                                    {activeTab === "articles" ? (
+                                        <div className="flex min-w-0 items-center gap-2 overflow-x-auto">
+                                            {categoryCountBadges.map((badge) => (
+                                                <span
+                                                    key={badge.category}
+                                                    className={`app-neon-badge inline-flex h-8 shrink-0 items-center px-5 text-sm font-bold ${badge.toneClass}`}
+                                                    style={
+                                                        badge.category === "Uncategorized"
+                                                            ? ({ "--neon-color": "#9ca3af" } as CSSProperties)
+                                                            : undefined
+                                                    }
+                                                >
+                                                    {badge.category}: {badge.count}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="app-text-muted shrink-0 text-sm">
+                                            Jobs in selected newsletter: {selectedNewsletterJobCount}
+                                        </p>
+                                    )}
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsFiltersPanelOpen((current) => !current)}
+                                        className="app-btn-ghost inline-flex h-9 w-9 shrink-0 items-center justify-center p-0 md:h-10 md:w-10"
+                                        aria-expanded={isFiltersPanelOpen}
+                                        aria-controls="curate-filters-panel"
+                                        aria-label={isFiltersPanelOpen ? "Hide filters and sort" : "Show filters and sort"}
+                                        title={isFiltersPanelOpen ? "Hide filters and sort" : "Show filters and sort"}
+                                    >
+                                        <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+                                            <path
+                                                d="M4 6h16M7 12h10M10 18h4"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="1.8"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
                                             />
-                                        </div>
-                                        <div className="shrink-0">
-                                            <CurateTabs activeTab={activeTab} onChange={setActiveTab} />
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        {activeTab === "articles" ? (
-                                            <div className="hidden max-w-160 items-center justify-end gap-2 overflow-x-auto lg:flex">
-                                                {categoryCountBadges.map((badge) => (
-                                                    <span
-                                                        key={badge.category}
-                                                        className={`app-neon-badge inline-flex h-8 shrink-0 items-center px-5 text-sm font-bold ${badge.toneClass}`}
-                                                        style={
-                                                            badge.category === "Uncategorized"
-                                                                ? ({ "--neon-color": "#9ca3af" } as CSSProperties)
-                                                                : undefined
-                                                        }
-                                                    >
-                                                        {badge.category}: {badge.count}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        ) : null}
-                                        <button
-                                            type="button"
-                                            onClick={() => setIsFiltersPanelOpen((current) => !current)}
-                                            className="app-btn-ghost inline-flex h-9 w-9 shrink-0 items-center justify-center p-0 md:h-10 md:w-10"
-                                            aria-expanded={isFiltersPanelOpen}
-                                            aria-controls="curate-filters-panel"
-                                            aria-label={isFiltersPanelOpen ? "Hide filters and sort" : "Show filters and sort"}
-                                            title={isFiltersPanelOpen ? "Hide filters and sort" : "Show filters and sort"}
-                                        >
-                                            <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
-                                                <path
-                                                    d="M4 6h16M7 12h10M10 18h4"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    strokeWidth="1.8"
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                />
-                                            </svg>
-                                        </button>
-                                    </div>
+                                        </svg>
+                                    </button>
                                 </div>
                             }
                         />
