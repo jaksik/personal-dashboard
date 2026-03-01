@@ -30,10 +30,21 @@ export type PublishContextJob = {
   created_at: string;
 };
 
+export type PublishStockRecap = {
+  category: string;
+  category_change: number | null;
+  leader_ticker: string;
+  leader_change: number | null;
+  laggard_ticker: string;
+  laggard_change: number | null;
+  created_at: string;
+};
+
 export type PublishWorkspacePayload = {
   newsletter: PublishContextNewsletter | null;
   articles: PublishContextArticle[];
   jobs: PublishContextJob[];
+  stockRecaps: PublishStockRecap[];
 };
 
 export async function requirePublishUser() {
@@ -86,6 +97,7 @@ export async function getPublishWorkspaceDataAction(
       newsletter: null,
       articles: [],
       jobs: [],
+      stockRecaps: [],
     };
   }
 
@@ -113,9 +125,31 @@ export async function getPublishWorkspaceDataAction(
     throw new Error(jobsError.message);
   }
 
+  const { data: stockRecapRows, error: stockRecapsError } = await supabase
+    .from("stock_recaps")
+    .select("category, category_change, leader_ticker, leader_change, laggard_ticker, laggard_change, created_at")
+    .gte("created_at", cutoff)
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false });
+
+  if (stockRecapsError) {
+    throw new Error(stockRecapsError.message);
+  }
+
+  const stockRecaps = (stockRecapRows ?? []).map((row) => ({
+    category: row.category,
+    category_change: row.category_change,
+    leader_ticker: row.leader_ticker,
+    leader_change: row.leader_change,
+    laggard_ticker: row.laggard_ticker,
+    laggard_change: row.laggard_change,
+    created_at: row.created_at,
+  }));
+
   return {
     newsletter,
     articles: (articles ?? []) as PublishContextArticle[],
     jobs: (jobs ?? []) as PublishContextJob[],
+    stockRecaps: stockRecaps as PublishStockRecap[],
   };
 }

@@ -2,7 +2,9 @@
  * Quick edits:
  * 1) Change section order with `sectionOrder.html` / `sectionOrder.plainText`.
  * 2) Switch category ordering with `categoryOrder.mode` ("alphabetical" | "custom").
- * 3) Update fallback labels in `labels` (title/subtitle/uncategorized/untitled/job labels).
+ * 3) Set stock recap row order with `stockRecapCategoryOrder`.
+ * 4) Set stock recap display labels with `stockRecapCategoryLabelOverrides`.
+ * 5) Update fallback labels in `labels` (title/subtitle/uncategorized/untitled/job labels).
  */
 export type PublishPayloadSection =
   | "title"
@@ -20,6 +22,11 @@ export type PublishPayloadConfig = {
     mode: "alphabetical" | "custom";
     customOrder: string[];
   };
+  stockRecapCategoryOrder: {
+    mode: "alphabetical" | "custom";
+    customOrder: string[];
+  };
+  stockRecapCategoryLabelOverrides: Record<string, string>;
   labels: {
     newsletterTitleFallback: string;
     newsletterSubtitleFallback: string;
@@ -67,12 +74,19 @@ export const publishPayloadConfig: PublishPayloadConfig = {
     mode: "custom",
     customOrder: ["Feature", "Economy", "Brief", "Research"],
   },
+  stockRecapCategoryOrder: {
+    mode: "custom",
+    customOrder: ["Hyperscaler", "Compute", "Energy", "Cooling", "Security", "Network", "Storage"],
+  },
+  stockRecapCategoryLabelOverrides: {
+    Hyperscaler: "🚀 Hyper", Storage: "💾 Storage", Robotics: "🤖 Robotics", Data: "🧠 Data", Network: "🌐 Network", Energy: "⚡ Energy", Saas: "💻 SaaS", Security: "🔒 Security", Cooling: "❄️ Cooling", Compute: "📟 Compute",
+  },
   labels: {
     newsletterTitleFallback: "Newsletter Title",
     newsletterSubtitleFallback: "Newsletter subtitle",
     uncategorizedFallback: "Uncategorized",
     untitledArticleFallback: "Untitled article",
-    categoryHeaderOverrides: {Feature: "Top Developments", Economy: "💰The AI Economy", Brief: "📝 Brief", Research: "🔬 Research"},
+    categoryHeaderOverrides: {Feature: "Top Developments", Economy: "💰The AI Economy", Brief: "📝 Brief", Research: "🔬 Research",},
     aiJobsHeading: "AI Jobs",
     untitledJobFallback: "Untitled job",
     noJobsFallback: "No associated jobs yet.",

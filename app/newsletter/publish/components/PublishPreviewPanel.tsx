@@ -2,7 +2,7 @@
 
 import { Fragment, useMemo, type ReactElement } from "react";
 import Image from "next/image";
-import type { PublishContextArticle, PublishContextJob } from "../actions";
+import type { PublishContextArticle, PublishContextJob, PublishStockRecap } from "../actions";
 import { getPublishHtmlSectionOrder } from "@/app/newsletter/publish/components/payload/publishPayloadBuilder";
 import {
   publishPayloadConfig,
@@ -23,6 +23,7 @@ type PublishPreviewPanelProps = {
   coverImage: string | null;
   articles: PublishContextArticle[];
   jobs: PublishContextJob[];
+  stockRecaps: PublishStockRecap[];
 };
 
 export default function PublishPreviewPanel({
@@ -31,6 +32,7 @@ export default function PublishPreviewPanel({
   coverImage,
   articles,
   jobs,
+  stockRecaps,
 }: PublishPreviewPanelProps) {
   const groupedArticles = useMemo(
     () =>
@@ -93,6 +95,133 @@ export default function PublishPreviewPanel({
       );
     }
 
+    function renderStockRecapsTable() {
+      if (stockRecaps.length === 0) {
+        return null;
+      }
+
+      function formatCategoryChangePercent(value: number | null) {
+        if (value == null) {
+          return null;
+        }
+
+        const rounded = Number.isInteger(value)
+          ? String(value)
+          : value.toFixed(2).replace(/\.00$/, "");
+        const sign = value > 0 ? "+" : "";
+        return `${sign}${rounded}%`;
+      }
+
+      function getStockRecapDisplayCategory(category: string) {
+        return publishPayloadConfig.stockRecapCategoryLabelOverrides[category] ?? category;
+      }
+
+      function getToneClassName(value: number | null) {
+        if (value == null) {
+          return "text-foreground/50";
+        }
+
+        if (value > 0) {
+          return "text-green-500";
+        }
+
+        if (value < 0) {
+          return "text-red-500";
+        }
+
+        return "text-foreground/50";
+      }
+
+      const rows = [...stockRecaps];
+      const orderMode = publishPayloadConfig.stockRecapCategoryOrder.mode;
+      const customOrder = publishPayloadConfig.stockRecapCategoryOrder.customOrder;
+
+      if (orderMode === "custom" && customOrder.length > 0) {
+        const customOrderIndex = new Map(customOrder.map((category, index) => [category, index]));
+
+        rows.sort((left, right) => {
+          const leftIndex = customOrderIndex.get(left.category);
+          const rightIndex = customOrderIndex.get(right.category);
+
+          if (leftIndex !== undefined && rightIndex !== undefined && leftIndex !== rightIndex) {
+            return leftIndex - rightIndex;
+          }
+
+          if (leftIndex !== undefined && rightIndex === undefined) {
+            return -1;
+          }
+
+          if (leftIndex === undefined && rightIndex !== undefined) {
+            return 1;
+          }
+
+          return left.category.localeCompare(right.category);
+        });
+      } else {
+        rows.sort((left, right) => left.category.localeCompare(right.category));
+      }
+
+      return (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-left text-sm">
+            <thead>
+              <tr>
+                <th className="border border-foreground/20 px-2 py-1.5 font-semibold">Sector</th>
+                <th className="border border-foreground/20 px-2 py-1.5 font-semibold">Leader Ticker</th>
+                <th className="border border-foreground/20 px-2 py-1.5 font-semibold">Laggard Ticker</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, rowIndex) => (
+                <tr key={`${row.created_at}-${row.category}-${rowIndex}`}>
+                  <td className="border border-foreground/20 px-2 py-1.5">
+                    {getStockRecapDisplayCategory(row.category)}
+                    {(() => {
+                      const categoryChange = formatCategoryChangePercent(row.category_change);
+
+                      if (!categoryChange) {
+                        return null;
+                      }
+
+                      const toneClassName = getToneClassName(row.category_change);
+
+                      return <span className={`ml-1 font-medium ${toneClassName}`}>{categoryChange}</span>;
+                    })()}
+                  </td>
+                  <td className="border border-foreground/20 px-2 py-1.5">
+                    {row.leader_ticker}
+                    {(() => {
+                      const leaderChange = formatCategoryChangePercent(row.leader_change);
+
+                      if (!leaderChange) {
+                        return null;
+                      }
+
+                      const toneClassName = getToneClassName(row.leader_change);
+                      return <span className={`ml-1 font-medium ${toneClassName}`}>{leaderChange}</span>;
+                    })()}
+                  </td>
+                  <td className="border border-foreground/20 px-2 py-1.5">
+                    {row.laggard_ticker}
+                    {(() => {
+                      const laggardChange = formatCategoryChangePercent(row.laggard_change);
+
+                      if (!laggardChange) {
+                        return null;
+                      }
+
+                      const toneClassName = getToneClassName(row.laggard_change);
+                      return <span className={`ml-1 font-medium ${toneClassName}`}>{laggardChange}</span>;
+                    })()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
     return typedOrder
       .map((sectionId, index) => {
         if (sectionId === "title" || sectionId === "subtitle") {
@@ -147,6 +276,7 @@ export default function PublishPreviewPanel({
                         <p className="app-text-muted text-center text-base font-semibold tracking-wide">
                           {getCategoryHeaderLabel(group.category, publishPayloadConfig)}
                         </p>
+                        {group.category.trim().toLowerCase() === "economy" ? renderStockRecapsTable() : null}
                         <ul className="space-y-1">
                           {group.items.map((article) => (
                             <li key={article.id} className="text-md">
@@ -208,7 +338,7 @@ export default function PublishPreviewPanel({
         return null;
       })
           .filter((section): section is ReactElement => section !== null);
-  }, [coverImage, groupedArticles, jobs, subTitle, title]);
+  }, [coverImage, groupedArticles, jobs, stockRecaps, subTitle, title]);
 
   return (
     <div className="space-y-3 rounded-xl border border-foreground/15 bg-foreground/2 p-3">

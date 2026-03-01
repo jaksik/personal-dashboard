@@ -7,6 +7,7 @@ import {
   type PublishContextArticle,
   type PublishContextJob,
   type PublishContextNewsletter,
+  type PublishStockRecap,
 } from "../actions";
 import { buildPublishPayloads } from "@/app/newsletter/publish/components/payload/publishPayloadBuilder";
 import PublishCopyButton from "@/app/newsletter/publish/components/PublishCopyButton";
@@ -17,6 +18,7 @@ export default function PublishRowActions() {
   const [newsletter, setNewsletter] = useState<PublishContextNewsletter | null>(null);
   const [articles, setArticles] = useState<PublishContextArticle[]>([]);
   const [jobs, setJobs] = useState<PublishContextJob[]>([]);
+  const [stockRecaps, setStockRecaps] = useState<PublishStockRecap[]>([]);
 
   useEffect(() => {
     async function loadPublishData() {
@@ -27,6 +29,7 @@ export default function PublishRowActions() {
         setNewsletter(payload.newsletter);
         setArticles(payload.articles);
         setJobs(payload.jobs);
+        setStockRecaps(payload.stockRecaps);
       } finally {
         setIsLoading(false);
       }
@@ -43,8 +46,8 @@ export default function PublishRowActions() {
       };
     }
 
-    return buildPublishPayloads({ newsletter, articles, jobs });
-  }, [newsletter, articles, jobs]);
+    return buildPublishPayloads({ newsletter, articles, jobs, stockRecaps });
+  }, [newsletter, articles, jobs, stockRecaps]);
 
   if (isLoading) {
     return <p className="app-text-muted text-xs">Preparing payload...</p>;
