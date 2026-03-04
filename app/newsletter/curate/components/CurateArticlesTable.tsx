@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import type { ArticleRow, SortKey } from "./types";
+import type { ArticleRow } from "./types";
 
 type CurateArticlesTableProps = {
   hasTargetNewsletter: boolean;
@@ -24,9 +24,6 @@ type CurateArticlesTableProps = {
   ) => Promise<void>;
   updatingArticleDocumentIds: number[];
   focusFirstRowSignal: number;
-  sortKey: SortKey;
-  sortDirection: "asc" | "desc";
-  applySort: (nextKey: SortKey) => void;
   addArticleToNewsletter: (articleId: number) => void;
   addingArticleIds: number[];
 };
@@ -54,14 +51,6 @@ function truncateText(value: string | null, maxLength: number) {
   return `${value.slice(0, maxLength).trimEnd()}…`;
 }
 
-function sortIndicator(sortKey: SortKey, activeSortKey: SortKey, sortDirection: "asc" | "desc") {
-  if (sortKey !== activeSortKey) {
-    return "↕";
-  }
-
-  return sortDirection === "asc" ? "↑" : "↓";
-}
-
 export default function CurateArticlesTable({
   hasTargetNewsletter,
   actionError,
@@ -76,9 +65,6 @@ export default function CurateArticlesTable({
   updateArticleDocument,
   updatingArticleDocumentIds,
   focusFirstRowSignal,
-  sortKey,
-  sortDirection,
-  applySort,
   addArticleToNewsletter,
   addingArticleIds,
 }: CurateArticlesTableProps) {
@@ -137,60 +123,22 @@ export default function CurateArticlesTable({
       <div className="app-kpi overflow-hidden p-0">
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
-            <thead className="sticky top-0 z-10 border-b border-foreground/15 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/90">
-              <tr>
-                <th className="w-18 px-2 py-3 font-semibold whitespace-nowrap">
-                  <button type="button" onClick={() => applySort("created_at")} className="relative pr-3 transition hover:opacity-80">
-                    Created
-                    <span className="absolute right-0 top-1/2 -translate-y-1/2" aria-hidden>
-                      {sortIndicator("created_at", sortKey, sortDirection)}
-                    </span>
-                  </button>
-                </th>
-                <th className="w-24 px-2 py-3 font-semibold whitespace-nowrap">
-                  <button type="button" onClick={() => applySort("source")} className="relative pr-3 transition hover:opacity-80">
-                    Source
-                    <span className="absolute right-0 top-1/2 -translate-y-1/2" aria-hidden>
-                      {sortIndicator("source", sortKey, sortDirection)}
-                    </span>
-                  </button>
-                </th>
-                <th className="px-4 py-3 font-semibold">
-                  <button type="button" onClick={() => applySort("category")} className="relative pr-3 transition hover:opacity-80">
-                    Category
-                    <span className="absolute right-0 top-1/2 -translate-y-1/2" aria-hidden>
-                      {sortIndicator("category", sortKey, sortDirection)}
-                    </span>
-                  </button>
-                </th>
-                <th className="font-semibold"></th>
-                <th className="px-4 py-3 font-semibold">
-                  <button type="button" onClick={() => applySort("title")} className="relative pr-3 transition hover:opacity-80">
-                    Title
-                    <span className="absolute right-0 top-1/2 -translate-y-1/2" aria-hidden>
-                      {sortIndicator("title", sortKey, sortDirection)}
-                    </span>
-                  </button>
-                </th>
-                <th className="px-4 py-3 font-semibold text-right"></th>
-              </tr>
-            </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center app-text-muted">
+                  <td colSpan={3} className="px-4 py-10 text-center app-text-muted">
                     Loading articles...
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center app-text-danger">
+                  <td colSpan={3} className="px-4 py-10 text-center app-text-danger">
                     {error}
                   </td>
                 </tr>
               ) : visibleArticles.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center app-text-muted">
+                  <td colSpan={3} className="px-4 py-10 text-center app-text-muted">
                     No articles found for the current filter.
                   </td>
                 </tr>
@@ -204,68 +152,36 @@ export default function CurateArticlesTable({
                     tabIndex={-1}
                     className="border-t border-foreground/10 align-top transition hover:bg-foreground/2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/25"
                   >
-                    <td className="px-2 py-4 app-text-muted whitespace-nowrap">
-                      {formatMonthDay(article.created_at)}
-                    </td>
-                    <td className="px-2 py-4 app-text-muted">
-                      <span className="block max-w-24 truncate">{article.source ?? "—"}</span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <select
-                        value={article.category?.trim() ?? ""}
-                        onChange={(event) =>
-                          updateArticleCategory(
-                            article.id,
-                            event.target.value ? event.target.value : null
-                          )
-                        }
-                        disabled={updatingCategoryArticleIds.includes(article.id)}
-                        className={`app-input app-input-neon h-8 min-w-32 text-xs disabled:opacity-60 ${
-                          categoryToneByName[article.category?.trim() || "Uncategorized"] ?? ""
-                        }`}
-                        style={{
-                          "--neon-color":
-                            categoryNeonColorByName[article.category?.trim() || "Uncategorized"] ??
-                            "#9ca3af",
-                        } as CSSProperties}
-                        aria-label={`Set category for article ${article.id}`}
-                      >
-                        <option value="">—</option>
-                        {categoryOptions.map((category) => (
-                          <option key={category} value={category}>
-                            {category}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="py-4">
+                    <td className="py-4 pl-2">
                       {(() => {
                         const isAssociated = article.newsletter_id !== null;
 
                         return (
-                      <button
-                        type="button"
-                        onClick={() => addArticleToNewsletter(article.id)}
-                        disabled={
-                          (!hasTargetNewsletter && article.newsletter_id === null) ||
-                          addingArticleIds.includes(article.id)
-                        }
-                        className={`inline-flex h-8 w-8 items-center justify-center rounded-md p-0 text-xl font-medium disabled:opacity-60 ${
-                          isAssociated ? "app-neon-badge" : "app-btn-ghost"
-                        }`}
-                        style={
-                          isAssociated
-                            ? ({ "--neon-color": "#4ade80" } as CSSProperties)
-                            : undefined
-                        }
-                        aria-label={
-                          isAssociated
-                            ? `Remove article ${article.id} from newsletter`
-                            : `Add article ${article.id} to newsletter`
-                        }
-                      >
-                        {isAssociated ? "-" : "+"}
-                      </button>
+                          <div className="flex flex-col items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => addArticleToNewsletter(article.id)}
+                              disabled={
+                                (!hasTargetNewsletter && article.newsletter_id === null) ||
+                                addingArticleIds.includes(article.id)
+                              }
+                              className={`inline-flex h-8 w-8 items-center justify-center rounded-md p-0 text-xl font-medium disabled:opacity-60 ${
+                                isAssociated ? "app-neon-badge" : "app-btn-ghost"
+                              }`}
+                              style={
+                                isAssociated
+                                  ? ({ "--neon-color": "#4ade80" } as CSSProperties)
+                                  : undefined
+                              }
+                              aria-label={
+                                isAssociated
+                                  ? `Remove article ${article.id} from newsletter`
+                                  : `Add article ${article.id} to newsletter`
+                              }
+                            >
+                              {isAssociated ? "-" : "+"}
+                            </button>
+                          </div>
                         );
                       })()}
                     </td>
@@ -349,18 +265,54 @@ export default function CurateArticlesTable({
                       )}
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          editingArticleId === article.id
-                            ? setEditingArticleId(null)
-                            : startEditing(article)
-                        }
-                        className="app-btn-ghost inline-flex h-7 w-7 items-center justify-center rounded-full p-0 text-xs font-medium"
-                        aria-label={`Edit article ${article.id}`}
-                      >
-                        ✎
-                      </button>
+                      <div className="flex h-full min-h-20 flex-col items-end justify-between gap-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            editingArticleId === article.id
+                              ? setEditingArticleId(null)
+                              : startEditing(article)
+                          }
+                          className="app-btn-ghost inline-flex h-7 w-7 items-center justify-center rounded-full p-0 text-xs font-medium"
+                          aria-label={`Edit article ${article.id}`}
+                        >
+                          ✎
+                        </button>
+                        <div className="flex flex-col items-end gap-1.5">
+                          <p className="text-2xs app-text-muted whitespace-nowrap">
+                            {formatMonthDay(article.created_at)}
+                          </p>
+                          <p className="max-w-32 truncate text-right text-xs app-text-muted">
+                            {article.source ?? "—"}
+                          </p>
+                          <select
+                            value={article.category?.trim() ?? ""}
+                            onChange={(event) =>
+                              updateArticleCategory(
+                                article.id,
+                                event.target.value ? event.target.value : null
+                              )
+                            }
+                            disabled={updatingCategoryArticleIds.includes(article.id)}
+                            className={`app-input app-input-neon h-8 min-w-32 text-xs disabled:opacity-60 ${
+                              categoryToneByName[article.category?.trim() || "Uncategorized"] ?? ""
+                            }`}
+                            style={{
+                              "--neon-color":
+                                categoryNeonColorByName[article.category?.trim() || "Uncategorized"] ??
+                                "#9ca3af",
+                            } as CSSProperties}
+                            aria-label={`Set category for article ${article.id}`}
+                          >
+                            <option value="">—</option>
+                            {categoryOptions.map((category) => (
+                              <option key={category} value={category}>
+                                {category}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 ))
