@@ -26,6 +26,7 @@ import {
     getVisibleJobs,
 } from "@/app/newsletter/curate/components/curateJobSelectors";
 import useCurateMutations from "@/app/newsletter/curate/components/useCurateMutations";
+import { publishPayloadConfig } from "@/app/newsletter/publish/components/payload/publishPayloadConfig";
 import type {
     ArticleNewsletterFilter,
     ArticleRow,
@@ -168,6 +169,59 @@ export default function CurateWorkspace({
             targetNewsletter,
         ]
     );
+
+    const selectedNewsletterArticles = useMemo(() => {
+        if (!targetNewsletter) {
+            return [];
+        }
+
+        return articles
+            .filter((article) => article.newsletter_id === targetNewsletter.id)
+            .sort((left, right) => {
+                const leftTime = left.created_at ? new Date(left.created_at).getTime() : 0;
+                const rightTime = right.created_at ? new Date(right.created_at).getTime() : 0;
+                return rightTime - leftTime;
+            });
+    }, [articles, targetNewsletter]);
+
+    const selectedNewsletterArticleGroups = useMemo(() => {
+        const uncategorized = publishPayloadConfig.labels.uncategorizedFallback;
+        const grouped = new Map<string, ArticleRow[]>();
+
+        for (const article of selectedNewsletterArticles) {
+            const category = article.category?.trim() || uncategorized;
+            if (!grouped.has(category)) {
+                grouped.set(category, []);
+            }
+
+            grouped.get(category)!.push(article);
+        }
+
+        const availableCategories = Array.from(grouped.keys());
+        const orderedCategories =
+            publishPayloadConfig.categoryOrder.mode === "custom"
+                ? [
+                      ...publishPayloadConfig.categoryOrder.customOrder.filter((category) =>
+                          grouped.has(category)
+                      ),
+                      ...availableCategories
+                          .filter(
+                              (category) =>
+                                  !publishPayloadConfig.categoryOrder.customOrder.includes(category)
+                          )
+                          .sort((left, right) =>
+                              left.localeCompare(right, undefined, { sensitivity: "base" })
+                          ),
+                  ]
+                : availableCategories.sort((left, right) =>
+                      left.localeCompare(right, undefined, { sensitivity: "base" })
+                  );
+
+        return orderedCategories.map((category) => ({
+            category,
+            articles: grouped.get(category) ?? [],
+        }));
+    }, [selectedNewsletterArticles]);
 
     const categoryCountBadges = useMemo(
         () => getCategoryCountBadges(articles, targetNewsletter),
@@ -317,21 +371,7 @@ export default function CurateWorkspace({
                             rightContent={
                                 <div className="flex min-w-0 items-center justify-end gap-2">
                                     {activeTab === "articles" ? (
-                                        <div className="flex min-w-0 items-center gap-2 overflow-x-auto">
-                                            {categoryCountBadges.map((badge) => (
-                                                <span
-                                                    key={badge.category}
-                                                    className={`app-neon-badge inline-flex h-8 shrink-0 items-center px-5 text-sm font-bold ${badge.toneClass}`}
-                                                    style={
-                                                        badge.category === "Uncategorized"
-                                                            ? ({ "--neon-color": "#9ca3af" } as CSSProperties)
-                                                            : undefined
-                                                    }
-                                                >
-                                                    {badge.category}: {badge.count}
-                                                </span>
-                                            ))}
-                                        </div>
+                                        null
                                     ) : (
                                         <p className="app-text-muted shrink-0 text-sm">
                                             Jobs in selected newsletter: {selectedNewsletterJobCount}
@@ -430,26 +470,86 @@ export default function CurateWorkspace({
             <div className="px-1 pb-4 md:px-2 md:pb-5" style={{ paddingTop: `${headerHeight + 16}px` }}>
                 <div className="mx-auto w-full max-w-6xl">
                     {activeTab === "articles" ? (
-                        <CurateArticlesTable
-                            hasTargetNewsletter={Boolean(targetNewsletter)}
-                            actionError={actionError}
-                            isLoading={isLoading}
-                            error={error}
-                            visibleArticles={visibleArticles}
-                            categoryOptions={categories}
-                            categoryToneByName={categoryToneByName}
-                            categoryNeonColorByName={categoryNeonColorByName}
-                            updateArticleCategory={updateArticleCategory}
-                            updatingCategoryArticleIds={updatingCategoryArticleIds}
-                            updateArticleDocument={updateArticleDocument}
-                            updatingArticleDocumentIds={updatingArticleDocumentIds}
-                            focusFirstRowSignal={articleSearchSubmitCount}
-                            sortKey={sortKey}
-                            sortDirection={sortDirection}
-                            applySort={applySort}
-                            addArticleToNewsletter={addArticleToNewsletter}
-                            addingArticleIds={addingArticleIds}
-                        />
+                        <div className="grid items-start gap-4 lg:grid-cols-[21rem_minmax(0,1fr)]">
+                            <aside
+                                className="app-kpi self-start p-3 lg:sticky"
+                                style={{ top: `${headerHeight + 16}px` }}
+                            >
+                                <p className="text-xs font-semibold uppercase tracking-wide app-text-muted">
+                                    Selected Newsletter Articles
+                                </p>
+                                <p className="mt-1 text-xs app-text-muted">
+                                    {selectedNewsletterArticles.length} selected
+                                </p>
+
+                                <div className="mt-3 max-h-[70vh] overflow-y-auto pr-1">
+                                    {selectedNewsletterArticles.length === 0 ? (
+                                        <p className="text-xs app-text-muted">
+                                            No selected articles.
+                                        </p>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            {selectedNewsletterArticleGroups.map((group) => (
+                                                <section key={group.category}>
+                                                    <div className="mb-1 px-1">
+                                                        <p className="text-2xs font-semibold uppercase tracking-wide app-text-muted">
+                                                            {group.category}
+                                                            <span className="font-normal">
+                                                            - {group.articles.length}
+                                                            </span>
+                                                        </p>
+                                                    </div>
+                                                    <ul className="space-y-2">
+                                                        {group.articles.map((article) => (
+                                                            <li
+                                                                key={article.id}
+                                                                className="flex items-start justify-between gap-2 rounded-md border border-foreground/10 bg-foreground/3 px-2 py-1.5 text-xs"
+                                                            >
+                                                                <span className="min-w-0 flex-1">
+                                                                    {article.title_snippet ??
+                                                                        article.title ??
+                                                                        `Article ${article.id}`}
+                                                                </span>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        addArticleToNewsletter(article.id)
+                                                                    }
+                                                                    disabled={addingArticleIds.includes(article.id)}
+                                                                    className="app-btn-ghost inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full p-0 text-xs leading-none disabled:opacity-60"
+                                                                    aria-label={`Remove article ${article.id} from selected newsletter`}
+                                                                    title="Remove from selected newsletter"
+                                                                >
+                                                                    ×
+                                                                </button>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </section>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </aside>
+
+                            <CurateArticlesTable
+                                hasTargetNewsletter={Boolean(targetNewsletter)}
+                                actionError={actionError}
+                                isLoading={isLoading}
+                                error={error}
+                                visibleArticles={visibleArticles}
+                                categoryOptions={categories}
+                                categoryToneByName={categoryToneByName}
+                                categoryNeonColorByName={categoryNeonColorByName}
+                                updateArticleCategory={updateArticleCategory}
+                                updatingCategoryArticleIds={updatingCategoryArticleIds}
+                                updateArticleDocument={updateArticleDocument}
+                                updatingArticleDocumentIds={updatingArticleDocumentIds}
+                                focusFirstRowSignal={articleSearchSubmitCount}
+                                addArticleToNewsletter={addArticleToNewsletter}
+                                addingArticleIds={addingArticleIds}
+                            />
+                        </div>
                     ) : (
                         <CurateJobsTable
                             hasTargetNewsletter={Boolean(targetNewsletter)}
