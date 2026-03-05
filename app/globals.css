@@ -309,3 +309,13 @@ body {
 .app-chart-dot-3 {
   background: var(--chart-3);
 }
+
+.app-scrollbox {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.app-scrollbox::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}

@@ -1,4 +1,4 @@
-import SiteHeaderActions from "@/components/dashboard/SiteHeaderActions";
+import SiteHeaderActions from "@/components/newsletter/SiteHeaderActions";
 import CurateWorkspace from "./components/CurateWorkspace";
 import { requireCurateUser } from "./actions";
 

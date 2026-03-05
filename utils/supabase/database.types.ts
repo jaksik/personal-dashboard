@@ -425,6 +425,78 @@ export type Database = {
   }
   system: {
     Tables: {
+      "90_day_metrics": {
+        Row: {
+          created_at: string
+          domain: string | null
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          domain?: string | null
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          domain?: string | null
+          id?: number
+        }
+        Relationships: []
+      }
+      events: {
+        Row: {
+          completed_date: string | null
+          created_at: string
+          details: string | null
+          domain: string
+          id: number
+          name: string
+          scheduled_date: string
+          status: string
+        }
+        Insert: {
+          completed_date?: string | null
+          created_at?: string
+          details?: string | null
+          domain: string
+          id?: number
+          name: string
+          scheduled_date: string
+          status: string
+        }
+        Update: {
+          completed_date?: string | null
+          created_at?: string
+          details?: string | null
+          domain?: string
+          id?: number
+          name?: string
+          scheduled_date?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string
+          domain: string
+          id: number
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          domain: string
+          id?: number
+          name: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           complete: boolean | null

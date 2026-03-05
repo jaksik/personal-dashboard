@@ -1,4 +1,4 @@
-import ThemeToggle from "@/components/dashboard/ThemeToggle";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import NewsletterProfileMenu from "@/components/newsletter/NewsletterProfileMenu";
 import { signOutAction } from "@/app/actions/auth";
 
