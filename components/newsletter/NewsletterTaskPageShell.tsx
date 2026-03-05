@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import NewsletterPageNav from "@/components/newsletter/NewsletterPageNav";
-import SiteHeaderActions from "@/components/dashboard/SiteHeaderActions";
+import SiteHeaderActions from "@/components/newsletter/SiteHeaderActions";
 
 type NewsletterTaskPageShellProps = {
   leftActions?: ReactNode;
